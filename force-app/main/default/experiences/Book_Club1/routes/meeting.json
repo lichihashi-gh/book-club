@@ -1,0 +1,12 @@
+{
+  "activeViewId": "908f5743-c4c1-478c-b6be-dd5f37aa29da",
+  "appPageId": "0e050cee-7cb2-4305-9267-0fa5ab8218a3",
+  "configurationTags": [],
+  "devName": "Meeting",
+  "id": "f202a6ce-a4f5-415c-bf15-a53027a9f619",
+  "label": "Pick a Meeting Date",
+  "pageAccess": "UseParent",
+  "routeType": "custom-meeting",
+  "type": "route",
+  "urlPrefix": "meeting"
+}

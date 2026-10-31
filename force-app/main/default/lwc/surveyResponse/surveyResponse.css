@@ -1,0 +1,23 @@
+.why-read {
+    margin: 0.3rem 1rem 0.1rem 0;
+    padding-left: 0.6rem;
+    border-left: 2px solid #b08d57;
+    font-size: 0.8rem;
+    line-height: 1.4;
+}
+
+.why-read-label {
+    display: block;
+    font-size: 0.65rem;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    color: #b08d57;
+}
+
+.why-read-text {
+    display: block;
+    font-family: 'Iowan Old Style', 'Palatino Linotype', Palatino, 'Book Antiqua', Georgia, serif;
+    font-style: italic;
+    color: #4a2c40;
+    white-space: pre-line;
+}

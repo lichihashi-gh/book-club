@@ -1,0 +1,63 @@
+{
+  "appPageId": "0e050cee-7cb2-4305-9267-0fa5ab8218a3",
+  "componentName": "siteforce:sldsOneColLayout",
+  "dataProviders": [],
+  "id": "2a41586a-b10f-4a69-9729-276fe710f0ae",
+  "label": "Home",
+  "regions": [
+    {
+      "id": "dd140408-9f82-460a-a345-d7a415d55aa1",
+      "regionName": "header",
+      "type": "region"
+    },
+    {
+      "components": [
+        {
+          "componentAttributes": {},
+          "componentName": "c:bookClubWelcome",
+          "id": "1697ec74-10cc-441c-802e-bc0941f82bbb",
+          "renderPriority": "NEUTRAL",
+          "renditionMap": {},
+          "type": "component"
+        },
+        {
+          "componentAttributes": {},
+          "componentName": "c:bookClubSurvey",
+          "id": "0a68c74d-3ddb-4a33-9287-96e8174278e8",
+          "renderPriority": "NEUTRAL",
+          "renditionMap": {},
+          "type": "component"
+        }
+      ],
+      "id": "061dcac1-62be-4c67-aecf-0d3a6868bd2d",
+      "regionName": "content",
+      "type": "region"
+    },
+    {
+      "id": "d41001e5-6931-4fea-b865-63747863913b",
+      "regionName": "footer",
+      "type": "region"
+    },
+    {
+      "components": [
+        {
+          "componentAttributes": {
+            "customHeadTags": "",
+            "description": "",
+            "title": "The Book Club"
+          },
+          "componentName": "forceCommunity:seoAssistant",
+          "id": "8d3abef9-3824-485f-bb22-67818cbcc1b6",
+          "renditionMap": {},
+          "type": "component"
+        }
+      ],
+      "id": "716042f4-bf48-4cab-a55b-384d7d7d5082",
+      "regionName": "sfdcHiddenRegion",
+      "type": "region"
+    }
+  ],
+  "themeLayoutType": "Inner",
+  "type": "view",
+  "viewType": "home"
+}

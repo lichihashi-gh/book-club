@@ -1,0 +1,8 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- Members without a Salesforce license log in to the Book Club site with this profile.
+     Their Book Club access comes from the Book_Club_Member permission set. -->
+<Profile xmlns="http://soap.sforce.com/2006/04/metadata">
+    <custom>true</custom>
+    <description>Book Club site members (External Apps Login license). Assign the Book Club Member permission set too.</description>
+    <userLicense>External Apps Login</userLicense>
+</Profile>

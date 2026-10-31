@@ -1,0 +1,6 @@
+# Salesforce CLI local state
+.sf/
+.sfdx/
+
+# macOS
+.DS_Store

@@ -1,0 +1,476 @@
+:host {
+    --bc-parchment: #fbf6ee;
+    --bc-card: #fffdf9;
+    --bc-plum: #4a2c40;
+    --bc-rose: #b5536b;
+    --bc-wine: #8e3b5a;
+    --bc-blush: #f3e3e0;
+    --bc-gold: #b08d57;
+    --bc-line: #e4d6c3;
+    --bc-muted: #6b4f60;
+    --bc-serif: 'Iowan Old Style', 'Palatino Linotype', Palatino, 'Book Antiqua', Georgia, serif;
+    display: block;
+    color: var(--bc-plum);
+}
+
+.reviews {
+    max-width: 70rem;
+    margin: 0 auto;
+}
+
+.intro {
+    text-align: center;
+    margin-bottom: 0.75rem;
+}
+
+.heading {
+    font-family: var(--bc-serif);
+    font-size: 2rem;
+    font-style: italic;
+    font-weight: 400;
+}
+
+.subheading {
+    color: var(--bc-muted);
+}
+
+.suggest-button {
+    display: block;
+    margin-bottom: 0.5rem;
+}
+
+.suggest-form {
+    margin-bottom: 0.75rem;
+    padding: 0.75rem 1rem 1rem;
+    background: var(--bc-card);
+    border: 1px solid var(--bc-line);
+    border-left: 4px solid var(--bc-gold);
+    border-radius: 0.5rem;
+}
+
+.suggest-heading {
+    font-family: var(--bc-serif);
+    font-size: 1.15rem;
+    font-style: italic;
+    margin-bottom: 0.25rem;
+}
+
+.suggest-actions {
+    margin-top: 0.75rem;
+    text-align: right;
+}
+
+.status {
+    padding: 0 0.4rem;
+    border-radius: 1rem;
+    font-size: 0.7rem;
+    background: var(--bc-line);
+    color: var(--bc-plum);
+}
+
+.status_selected {
+    background: var(--bc-gold);
+    color: #fff;
+}
+
+.status_reviewed {
+    background: var(--bc-plum);
+    color: #fff;
+}
+
+.title-list {
+    margin-top: 0.75rem;
+    max-height: 32rem;
+    overflow-y: auto;
+    border: 1px solid var(--bc-line);
+    border-radius: 0.5rem;
+    background: var(--bc-card);
+}
+
+.title-list li + li {
+    border-top: 1px solid var(--bc-line);
+}
+
+.title-button {
+    display: block;
+    width: 100%;
+    padding: 0.6rem 0.85rem;
+    text-align: left;
+    background: transparent;
+    border: 0;
+    border-left: 4px solid transparent;
+    color: inherit;
+    cursor: pointer;
+}
+
+.title-button:hover {
+    background: var(--bc-parchment);
+}
+
+.title-button:focus-visible {
+    outline: 2px solid var(--bc-wine);
+    outline-offset: -2px;
+}
+
+.title-button_selected {
+    background: var(--bc-blush);
+    border-left-color: var(--bc-wine);
+}
+
+.title-name {
+    display: block;
+    font-family: var(--bc-serif);
+    font-size: 1.05rem;
+}
+
+.title-author {
+    display: block;
+    font-size: 0.8rem;
+    color: var(--bc-muted);
+}
+
+.title-meta {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 0.4rem;
+    margin-top: 0.2rem;
+    font-size: 0.8rem;
+}
+
+.title-count {
+    color: var(--bc-muted);
+}
+
+.stars {
+    color: var(--bc-gold);
+    letter-spacing: 0.05em;
+}
+
+.mine-badge {
+    padding: 0 0.4rem;
+    border-radius: 1rem;
+    background: var(--bc-wine);
+    color: #fff;
+    font-size: 0.7rem;
+}
+
+.detail {
+    padding: 1rem 1.25rem;
+    background: var(--bc-card);
+    border: 1px solid var(--bc-line);
+    border-radius: 0.5rem;
+}
+
+.detail-title {
+    font-family: var(--bc-serif);
+    font-size: 1.6rem;
+    font-style: italic;
+}
+
+.detail-author {
+    color: var(--bc-muted);
+}
+
+.why-read {
+    margin: 0.6rem 0 0;
+    padding: 0.4rem 0 0.4rem 0.85rem;
+    border-left: 3px solid var(--bc-gold);
+}
+
+.why-read-label {
+    font-size: 0.7rem;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    color: var(--bc-gold);
+}
+
+.why-read-text {
+    margin: 0.15rem 0 0;
+    font-family: var(--bc-serif);
+    font-style: italic;
+    line-height: 1.5;
+    white-space: pre-line;
+}
+
+.score-summary {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 1rem 1.5rem;
+    margin-bottom: 0.75rem;
+    padding: 0.75rem 1rem;
+    background: var(--bc-parchment);
+    border-radius: 0.5rem;
+}
+
+.score-main,
+.club-score {
+    text-align: center;
+}
+
+.score-number,
+.club-score-number {
+    font-family: var(--bc-serif);
+    font-size: 2.5rem;
+    line-height: 1;
+}
+
+.score-stars {
+    font-size: 1.1rem;
+}
+
+.score-caption,
+.club-score-label {
+    font-size: 0.75rem;
+    color: var(--bc-muted);
+}
+
+.club-score-label {
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+}
+
+.club-score {
+    padding-left: 1.5rem;
+    border-left: 1px solid var(--bc-line);
+}
+
+.score-bars {
+    flex: 1 1 12rem;
+    min-width: 10rem;
+}
+
+.score-bar-row {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    font-size: 0.75rem;
+}
+
+.score-bar-label {
+    flex: 0 0 2rem;
+    color: var(--bc-muted);
+    white-space: nowrap;
+}
+
+.score-bar-track {
+    flex: 1 1 auto;
+    height: 0.5rem;
+    background: var(--bc-line);
+    border-radius: 0.25rem;
+    overflow: hidden;
+}
+
+.score-bar-fill {
+    display: block;
+    height: 100%;
+    background: var(--bc-gold);
+    border-radius: 0.25rem;
+}
+
+.score-bar-count {
+    flex: 0 0 1.25rem;
+    text-align: right;
+    color: var(--bc-muted);
+}
+
+.my-review {
+    margin: 1.5rem 0 1.25rem;
+    padding: 1rem 1.25rem 1.25rem;
+    background: var(--bc-blush);
+    border: 1px solid rgba(142, 59, 90, 0.25);
+    border-left: 5px solid var(--bc-wine);
+    border-radius: 0.5rem;
+    box-shadow: 0 2px 6px rgba(74, 44, 64, 0.08);
+}
+
+.my-review-heading {
+    font-family: var(--bc-serif);
+    font-size: 1.4rem;
+    font-style: italic;
+    color: var(--bc-wine);
+}
+
+.my-review-intro {
+    margin-bottom: 0.6rem;
+    font-size: 0.85rem;
+    color: var(--bc-muted);
+}
+
+.star-picker {
+    border: 0;
+    margin: 0 0 0.75rem;
+    padding: 0;
+}
+
+.star-legend {
+    margin-bottom: 0.2rem;
+    font-size: 1.05rem;
+    font-weight: 600;
+    color: var(--bc-plum);
+}
+
+.star-caption {
+    display: inline-block;
+    margin-left: 0.6rem;
+    vertical-align: middle;
+    font-family: var(--bc-serif);
+    font-size: 1.05rem;
+    font-style: italic;
+    color: var(--bc-wine);
+}
+
+.star-choice {
+    display: inline-block;
+}
+
+.star-input {
+    position: absolute;
+    opacity: 0;
+    width: 1px;
+    height: 1px;
+}
+
+.star {
+    display: inline-block;
+    padding: 0 0.1rem;
+    font-size: 2.5rem;
+    line-height: 1;
+    color: #d9c3b0;
+    vertical-align: middle;
+    cursor: pointer;
+    transition: color 0.15s, transform 0.15s;
+}
+
+.star:hover {
+    transform: scale(1.12);
+}
+
+.star_filled {
+    color: var(--bc-gold);
+}
+
+.star-input:focus-visible + .star {
+    outline: 2px solid var(--bc-wine);
+    outline-offset: 2px;
+    border-radius: 0.25rem;
+}
+
+.save-button {
+    display: inline-block;
+    margin-top: 0.75rem;
+}
+
+.reviews-heading {
+    font-family: var(--bc-serif);
+    font-size: 1.15rem;
+    margin-bottom: 0.5rem;
+    border-bottom: 1px solid var(--bc-line);
+    padding-bottom: 0.25rem;
+}
+
+.reviews-heading_spaced {
+    margin-top: 1.25rem;
+}
+
+.ol-card {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+    padding: 0.75rem 1rem;
+    background: var(--bc-parchment);
+    border-radius: 0.5rem;
+}
+
+.ol-cover {
+    flex: 0 0 auto;
+    width: 3.5rem;
+    border-radius: 0.2rem;
+    box-shadow: 0 1px 3px rgba(74, 44, 64, 0.3);
+}
+
+.ol-score {
+    display: flex;
+    align-items: baseline;
+    gap: 0.5rem;
+}
+
+.ol-number {
+    font-family: var(--bc-serif);
+    font-size: 2rem;
+    line-height: 1;
+}
+
+.ol-note {
+    font-size: 0.85rem;
+    font-style: italic;
+    color: var(--bc-muted);
+}
+
+.ol-link {
+    display: inline-block;
+    margin-top: 0.3rem;
+    font-size: 0.85rem;
+    color: var(--bc-wine);
+}
+
+.review {
+    padding: 0.6rem 0;
+}
+
+.review + .review {
+    border-top: 1px dashed var(--bc-line);
+}
+
+.review_mine {
+    padding-left: 0.6rem;
+    border-left: 3px solid var(--bc-rose);
+}
+
+.review-header {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 0.5rem;
+}
+
+.review-name {
+    font-weight: 600;
+}
+
+.review-date {
+    font-size: 0.75rem;
+    color: var(--bc-muted);
+}
+
+.review-comment {
+    margin-top: 0.3rem;
+    white-space: pre-line;
+    font-family: var(--bc-serif);
+    font-size: 1rem;
+    line-height: 1.5;
+}
+
+.hint {
+    color: var(--bc-muted);
+    font-style: italic;
+    margin-top: 0.75rem;
+}
+
+.hint_center {
+    text-align: center;
+    padding: 3rem 1rem;
+    border: 1px dashed var(--bc-line);
+    border-radius: 0.5rem;
+}
+
+@media (prefers-reduced-motion: reduce) {
+    .star {
+        transition: none;
+    }
+
+    .star:hover {
+        transform: none;
+    }
+}

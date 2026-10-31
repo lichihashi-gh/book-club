@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<CustomField xmlns="http://soap.sforce.com/2006/04/metadata">
+    <fullName>Survey_Option__c</fullName>
+    <externalId>false</externalId>
+    <label>Survey Option</label>
+    <referenceTo>Survey_Option__c</referenceTo>
+    <relationshipLabel>Survey Rankings</relationshipLabel>
+    <relationshipName>Survey_Rankings</relationshipName>
+    <relationshipOrder>1</relationshipOrder>
+    <reparentableMasterDetail>false</reparentableMasterDetail>
+    <trackTrending>false</trackTrending>
+    <type>MasterDetail</type>
+    <writeRequiresMasterRead>true</writeRequiresMasterRead>
+</CustomField>

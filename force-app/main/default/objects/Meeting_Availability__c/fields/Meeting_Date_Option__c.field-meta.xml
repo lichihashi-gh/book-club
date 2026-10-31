@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<CustomField xmlns="http://soap.sforce.com/2006/04/metadata">
+    <fullName>Meeting_Date_Option__c</fullName>
+    <externalId>false</externalId>
+    <label>Meeting Date Option</label>
+    <referenceTo>Meeting_Date_Option__c</referenceTo>
+    <relationshipLabel>Availabilities</relationshipLabel>
+    <relationshipName>Availabilities</relationshipName>
+    <relationshipOrder>1</relationshipOrder>
+    <reparentableMasterDetail>false</reparentableMasterDetail>
+    <trackTrending>false</trackTrending>
+    <type>MasterDetail</type>
+    <writeRequiresMasterRead>true</writeRequiresMasterRead>
+</CustomField>

@@ -1,0 +1,11 @@
+# Salesforce Code Analyzer config. Java is a user-local Temurin 21 JDK (no system Java on this Mac).
+engines:
+  pmd:
+    java_command: /Users/elizabethichihashi/.jdks/jdk-21.0.13+9/Contents/Home/bin/java
+  cpd:
+    java_command: /Users/elizabethichihashi/.jdks/jdk-21.0.13+9/Contents/Home/bin/java
+  sfge:
+    java_command: /Users/elizabethichihashi/.jdks/jdk-21.0.13+9/Contents/Home/bin/java
+  # Needs Python 3.10+, and this project has no Flows.
+  flow:
+    disable_engine: true

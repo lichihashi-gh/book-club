@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<CustomField xmlns="http://soap.sforce.com/2006/04/metadata">
+    <fullName>Title__c</fullName>
+    <deleteConstraint>Restrict</deleteConstraint>
+    <externalId>false</externalId>
+    <label>Title</label>
+    <lookupFilter>
+        <active>true</active>
+        <errorMessage>Titles the club has already reviewed can&apos;t be added to a survey.</errorMessage>
+        <filterItems>
+            <field>Title__c.Status__c</field>
+            <operation>notEqual</operation>
+            <value>Reviewed</value>
+        </filterItems>
+        <isOptional>false</isOptional>
+    </lookupFilter>
+    <referenceTo>Title__c</referenceTo>
+    <relationshipLabel>Survey Appearances</relationshipLabel>
+    <relationshipName>Survey_Options</relationshipName>
+    <required>true</required>
+    <trackTrending>false</trackTrending>
+    <type>Lookup</type>
+</CustomField>

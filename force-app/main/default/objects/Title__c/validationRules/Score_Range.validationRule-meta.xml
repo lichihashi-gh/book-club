@@ -1,0 +1,8 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ValidationRule xmlns="http://soap.sforce.com/2006/04/metadata">
+    <fullName>Score_Range</fullName>
+    <active>true</active>
+    <errorConditionFormula>NOT(ISBLANK(Overall_Score__c)) &amp;&amp; (Overall_Score__c &lt; 1 || Overall_Score__c &gt; 5)</errorConditionFormula>
+    <errorDisplayField>Overall_Score__c</errorDisplayField>
+    <errorMessage>Overall Score must be between 1 and 5.</errorMessage>
+</ValidationRule>

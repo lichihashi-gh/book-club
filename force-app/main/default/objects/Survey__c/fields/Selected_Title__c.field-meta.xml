@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<CustomField xmlns="http://soap.sforce.com/2006/04/metadata">
+    <fullName>Selected_Title__c</fullName>
+    <deleteConstraint>SetNull</deleteConstraint>
+    <description>The title the club chose when the survey closed.</description>
+    <externalId>false</externalId>
+    <label>Selected Title</label>
+    <referenceTo>Title__c</referenceTo>
+    <relationshipLabel>Selected On Surveys</relationshipLabel>
+    <relationshipName>Selected_On_Surveys</relationshipName>
+    <required>false</required>
+    <trackTrending>false</trackTrending>
+    <type>Lookup</type>
+</CustomField>

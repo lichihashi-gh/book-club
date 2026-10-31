@@ -1,0 +1,105 @@
+<template>
+    <div class="slds-p-horizontal_medium">
+        <template lwc:if={error}>
+            <p class="slds-text-color_error" role="alert">{error}</p>
+        </template>
+        <template lwc:elseif={survey}>
+            <template lwc:if={isOpen}>
+                <p class="slds-m-bottom_small">
+                    Put your favorite at the top. Every title is ranked; the top spot earns the most points.
+                </p>
+                <template lwc:if={survey.hasVoted}>
+                    <p class="slds-m-bottom_small slds-text-color_weak">
+                        You voted on&nbsp;<lightning-formatted-date-time
+                            value={survey.submittedOn}
+                            year="numeric"
+                            month="short"
+                            day="numeric"
+                            hour="numeric"
+                            minute="2-digit"
+                        ></lightning-formatted-date-time>.
+                        You can change your ranking until the survey closes.
+                    </p>
+                </template>
+            </template>
+            <template lwc:elseif={isClosed}>
+                <p class="slds-m-bottom_small">
+                    Voting is closed. The club selected <strong>{survey.selectedTitleName}</strong>.
+                </p>
+            </template>
+            <template lwc:else>
+                <p class="slds-m-bottom_small">Voting hasn't opened for this survey yet.</p>
+            </template>
+
+            <ol aria-label="Your ranking">
+                <template for:each={rows} for:item="row">
+                    <li key={row.id} class="slds-grid slds-grid_vertical-align-center slds-p-vertical_x-small slds-border_bottom">
+                        <div class="slds-col slds-grow-none slds-p-right_small">
+                            <span class="slds-badge">{row.position}</span>
+                        </div>
+                        <div class="slds-col">
+                            <p class="slds-text-heading_small">{row.titleName}</p>
+                            <p class="slds-text-body_small slds-text-color_weak">{row.author}</p>
+                            <template lwc:if={row.notes}>
+                                <p class="why-read">
+                                    <span class="why-read-label">Why read it</span>
+                                    <span class="why-read-text">{row.notes}</span>
+                                </p>
+                            </template>
+                        </div>
+                        <template lwc:if={isOpen}>
+                            <div class="slds-col slds-grow-none">
+                                <lightning-button-icon
+                                    icon-name="utility:jump_to_top"
+                                    alternative-text={row.topLabel}
+                                    title={row.topLabel}
+                                    data-index={row.index}
+                                    disabled={row.isFirst}
+                                    onclick={moveToTop}
+                                ></lightning-button-icon>
+                                <lightning-button-icon
+                                    class="slds-m-left_xx-small"
+                                    icon-name="utility:arrowup"
+                                    alternative-text={row.upLabel}
+                                    title={row.upLabel}
+                                    data-index={row.index}
+                                    disabled={row.isFirst}
+                                    onclick={moveUp}
+                                ></lightning-button-icon>
+                                <lightning-button-icon
+                                    class="slds-m-left_xx-small"
+                                    icon-name="utility:arrowdown"
+                                    alternative-text={row.downLabel}
+                                    title={row.downLabel}
+                                    data-index={row.index}
+                                    disabled={row.isLast}
+                                    onclick={moveDown}
+                                ></lightning-button-icon>
+                                <lightning-button-icon
+                                    class="slds-m-left_xx-small"
+                                    icon-name="utility:jump_to_bottom"
+                                    alternative-text={row.bottomLabel}
+                                    title={row.bottomLabel}
+                                    data-index={row.index}
+                                    disabled={row.isLast}
+                                    onclick={moveToBottom}
+                                ></lightning-button-icon>
+                            </div>
+                        </template>
+                    </li>
+                </template>
+            </ol>
+
+            <template lwc:if={isOpen}>
+                <div class="slds-m-vertical_medium">
+                    <lightning-button
+                        variant="brand"
+                        label={submitLabel}
+                        disabled={saving}
+                        onclick={handleSubmit}
+                    ></lightning-button>
+                </div>
+            </template>
+        </template>
+    </div>
+</template>

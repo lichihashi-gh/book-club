@@ -1,0 +1,86 @@
+<template>
+    <article class="slds-card slds-p-top_x-small">
+        <template lwc:if={error}>
+            <p class="slds-p-around_medium slds-text-color_error" role="alert">{error}</p>
+        </template>
+        <template lwc:elseif={loaded}>
+            <!-- Big, separately colored tab buttons instead of lightning-tabset, whose thin text tabs are hard to spot. -->
+            <div class="tablist" role="tablist" aria-label="Book club" onkeydown={handleTabKeydown}>
+                <template for:each={tabs} for:item="tab">
+                    <button
+                        key={tab.id}
+                        id={tab.tabId}
+                        class={tab.className}
+                        type="button"
+                        role="tab"
+                        aria-selected={tab.ariaSelected}
+                        aria-controls={tab.panelId}
+                        tabindex={tab.tabIndex}
+                        data-id={tab.id}
+                        onclick={handleTabClick}
+                    >
+                        <lightning-icon icon-name={tab.icon} size="small" class="tab-icon"></lightning-icon>
+                        <span class="tab-text">
+                            <span class="tab-label">{tab.label}</span>
+                            <span class="tab-hint">{tab.hint}</span>
+                        </span>
+                    </button>
+                </template>
+            </div>
+
+            <div class={panelClass} role="tabpanel" id={activeTab.panelId} aria-labelledby={activeTab.tabId} tabindex="0">
+                <!-- Members vote on the site only. -->
+                <template lwc:if={showVote}>
+                    <template lwc:if={showPicker}>
+                        <div class="slds-p-horizontal_medium slds-p-bottom_small">
+                            <lightning-combobox
+                                label="Survey"
+                                options={surveyOptions}
+                                value={surveyId}
+                                onchange={handleSurveyChange}
+                            ></lightning-combobox>
+                        </div>
+                    </template>
+                    <template lwc:if={surveyId}>
+                        <c-survey-response survey-id={surveyId}></c-survey-response>
+                    </template>
+                    <template lwc:else>
+                        <p class="slds-p-around_medium">There are no published surveys right now.</p>
+                    </template>
+                </template>
+                <!-- Admins only (never on the member site), so votes in progress don't sway members. -->
+                <template lwc:if={showResults}>
+                    <template lwc:if={showPicker}>
+                        <div class="slds-p-horizontal_medium slds-p-bottom_small">
+                            <lightning-combobox
+                                label="Survey"
+                                options={surveyOptions}
+                                value={surveyId}
+                                onchange={handleSurveyChange}
+                            ></lightning-combobox>
+                        </div>
+                    </template>
+                    <template lwc:if={surveyId}>
+                        <c-survey-results
+                            survey-id={surveyId}
+                            is-admin={isAdmin}
+                            onsurveyclosed={handleClosed}
+                        ></c-survey-results>
+                    </template>
+                    <template lwc:else>
+                        <p class="slds-p-around_medium">There are no published surveys right now.</p>
+                    </template>
+                </template>
+                <template lwc:if={showMeeting}>
+                    <c-meeting-poll></c-meeting-poll>
+                </template>
+                <template lwc:if={showBookshelf}>
+                    <c-title-reviews></c-title-reviews>
+                </template>
+            </div>
+        </template>
+        <template lwc:else>
+            <lightning-spinner alternative-text="Loading surveys" size="small"></lightning-spinner>
+        </template>
+    </article>
+</template>

@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<CustomField xmlns="http://soap.sforce.com/2006/04/metadata">
+    <fullName>Suggested_By__c</fullName>
+    <deleteConstraint>SetNull</deleteConstraint>
+    <description>The member who suggested this title.</description>
+    <externalId>false</externalId>
+    <label>Suggested By</label>
+    <referenceTo>User</referenceTo>
+    <relationshipLabel>Suggested Titles</relationshipLabel>
+    <relationshipName>Suggested_Titles</relationshipName>
+    <required>false</required>
+    <trackTrending>false</trackTrending>
+    <type>Lookup</type>
+</CustomField>

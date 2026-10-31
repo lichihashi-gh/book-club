@@ -1,0 +1,85 @@
+<template>
+    <header class="welcome" style={bannerStyle}>
+        <svg class="garland" viewBox="0 0 600 52" aria-hidden="true" focusable="false">
+            <path
+                class="stem"
+                stroke={stemColor}
+                d="M0 28 C 60 8, 110 46, 170 24 S 260 8, 300 28 S 380 46, 430 24 S 540 8, 600 28"
+            ></path>
+            <template for:each={leaves} for:item="leaf">
+                <path key={leaf.key} d={leaf.path} fill={leaf.fill} transform={leaf.transform}></path>
+            </template>
+            <template for:each={extras} for:item="extra">
+                <g key={extra.key} transform={extra.transform}>
+                    <template lwc:if={extra.isBud}>
+                        <circle r="5" fill={extra.primary}></circle>
+                        <circle r="2.5" fill={extra.secondary}></circle>
+                    </template>
+                    <template lwc:elseif={extra.isAcorn}>
+                        <ellipse cy="2" rx="4" ry="5.5" fill={extra.primary}></ellipse>
+                        <path d="M-5 -1 C -5 -6, 5 -6, 5 -1 Z M0 -5 L1 -8" fill={extra.secondary} stroke={extra.secondary} stroke-width="1"></path>
+                    </template>
+                    <template lwc:elseif={extra.isBerries}>
+                        <circle cx="-3" cy="1" r="3" fill={extra.primary}></circle>
+                        <circle cx="3" cy="1" r="3" fill={extra.secondary}></circle>
+                        <circle cx="0" cy="-4" r="3" fill={extra.primary}></circle>
+                    </template>
+                    <template lwc:elseif={extra.isPumpkin}>
+                        <ellipse cx="-3" cy="1" rx="3.5" ry="5" fill={extra.primary}></ellipse>
+                        <ellipse cx="3" cy="1" rx="3.5" ry="5" fill={extra.primary}></ellipse>
+                        <ellipse cy="1" rx="3" ry="5.5" fill={extra.primary} stroke="#b85c14" stroke-width="0.6"></ellipse>
+                        <path d="M0 -4 C 0 -7, 1 -8, 3 -9" fill="none" stroke={extra.secondary} stroke-width="1.6" stroke-linecap="round"></path>
+                    </template>
+                </g>
+            </template>
+            <template for:each={flowers} for:item="flower">
+                <g key={flower.key} transform={flower.transform}>
+                    <template for:each={flower.rings} for:item="ring">
+                        <circle key={ring.key} r={ring.r} fill={ring.fill}></circle>
+                    </template>
+                    <template for:each={flower.petals} for:item="petal">
+                        <ellipse
+                            key={petal.key}
+                            rx={petal.rx}
+                            ry={petal.ry}
+                            cy={petal.cy}
+                            fill={petal.fill}
+                            transform={petal.transform}
+                        ></ellipse>
+                    </template>
+                    <template lwc:if={flower.isRose}>
+                        <path
+                            class="swirl"
+                            stroke={flower.center}
+                            d="M0 0 C 2 -2, 4 1, 2 3 C -1 6, -5 2, -3 -2 C -2 -6, 4 -6, 6 -2"
+                        ></path>
+                    </template>
+                    <template lwc:else>
+                        <circle r="3.2" fill={flower.center}></circle>
+                    </template>
+                </g>
+            </template>
+        </svg>
+
+        <div class="content">
+            <div class="masthead">
+                <p class="eyebrow">{eyebrow}</p>
+                <h1 class="title">The Book Club</h1>
+                <p class="tagline">Where good books find their readers</p>
+            </div>
+            <figure class="quote">
+                <blockquote>“{quote.text}”</blockquote>
+                <figcaption>{quote.author}, <cite>{quote.work}</cite></figcaption>
+            </figure>
+        </div>
+
+        <template lwc:if={specialDay}>
+            <section class="special" aria-label={specialDay.heading}>
+                <p class="special-heading">
+                    <span aria-hidden="true">🎂 </span>{specialDay.heading}<span aria-hidden="true"> 🎉</span>
+                </p>
+                <p class="special-message">{specialDay.message}<span aria-hidden="true"> 🎃</span></p>
+            </section>
+        </template>
+    </header>
+</template>

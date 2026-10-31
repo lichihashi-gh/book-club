@@ -1,0 +1,69 @@
+<template>
+    <div class="slds-p-horizontal_medium">
+        <template lwc:if={error}>
+            <p class="slds-text-color_error" role="alert">{error}</p>
+        </template>
+        <template lwc:elseif={results}>
+            <p class="slds-m-bottom_small">
+                {results.responseCount} response(s). Points: a title earns more the higher it's ranked;
+                ties go to the most first-choice votes.
+            </p>
+            <template lwc:if={results.isTie}>
+                <div class="slds-notify slds-notify_alert slds-alert_warning slds-m-bottom_small" role="alert">
+                    It's a tie. Pick the winner after the club talks it over.
+                </div>
+            </template>
+
+            <table class="slds-table slds-table_cell-buffer slds-table_bordered" aria-label="Survey results">
+                <thead>
+                    <tr class="slds-line-height_reset">
+                        <th scope="col">#</th>
+                        <th scope="col">Title</th>
+                        <th scope="col">Points</th>
+                        <th scope="col">First-choice votes</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <template for:each={rows} for:item="row">
+                        <tr key={row.titleId} class={row.rowClass}>
+                            <td>{row.place}</td>
+                            <th scope="row">
+                                <span class="slds-text-title_bold">{row.titleName}</span>
+                                <template lwc:if={row.isSelected}>
+                                    <span class="slds-badge slds-badge_inverse slds-m-left_x-small">Selected</span>
+                                </template>
+                                <div class="slds-text-body_small slds-text-color_weak">{row.author}</div>
+                            </th>
+                            <td>{row.totalPoints}</td>
+                            <td>{row.firstChoiceVotes}</td>
+                        </tr>
+                    </template>
+                </tbody>
+            </table>
+
+            <template lwc:if={canClose}>
+                <div class="slds-box slds-m-vertical_medium">
+                    <lightning-radio-group
+                        label="Winner"
+                        options={winnerOptions}
+                        value={winnerTitleId}
+                        onchange={handleWinnerChange}
+                        required
+                    ></lightning-radio-group>
+                    <template lwc:if={hasResponses}>
+                        <p class="slds-text-body_small slds-text-color_weak slds-m-top_x-small">
+                            The leader is pre-selected. Change it if the club decided otherwise.
+                        </p>
+                    </template>
+                    <lightning-button
+                        class="slds-m-top_small"
+                        variant="brand"
+                        label="Close &amp; confirm winner"
+                        disabled={closing}
+                        onclick={handleClose}
+                    ></lightning-button>
+                </div>
+            </template>
+        </template>
+    </div>
+</template>
