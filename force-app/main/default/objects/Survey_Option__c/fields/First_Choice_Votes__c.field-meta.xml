@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<CustomField xmlns="http://soap.sforce.com/2006/04/metadata">
+    <fullName>First_Choice_Votes__c</fullName>
+    <externalId>false</externalId>
+    <label>First Choice Votes</label>
+    <summaryFilterItems>
+        <field>Survey_Ranking__c.Rank__c</field>
+        <operation>equals</operation>
+        <value>1</value>
+    </summaryFilterItems>
+    <summaryForeignKey>Survey_Ranking__c.Survey_Option__c</summaryForeignKey>
+    <summaryOperation>count</summaryOperation>
+    <trackTrending>false</trackTrending>
+    <type>Summary</type>
+</CustomField>

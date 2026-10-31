@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<CustomApplication xmlns="http://soap.sforce.com/2006/04/metadata">
+    <brand>
+        <headerColor>#5A1BA9</headerColor>
+        <shouldOverrideOrgTheme>false</shouldOverrideOrgTheme>
+    </brand>
+    <description>Track suggested titles, run ranked-choice selection surveys and schedule the meetings.</description>
+    <formFactors>Small</formFactors>
+    <formFactors>Large</formFactors>
+    <label>Book Club Admin</label>
+    <navType>Standard</navType>
+    <tabs>Book_Club_Survey</tabs>
+    <tabs>Book_Club_Reviews</tabs>
+    <tabs>Title__c</tabs>
+    <tabs>Survey__c</tabs>
+    <tabs>Book_Club_Meeting__c</tabs>
+    <uiType>Lightning</uiType>
+</CustomApplication>

@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<CustomField xmlns="http://soap.sforce.com/2006/04/metadata">
+    <fullName>Reviewer__c</fullName>
+    <deleteConstraint>SetNull</deleteConstraint>
+    <description>Set by the trigger to the member who wrote the review.</description>
+    <externalId>false</externalId>
+    <label>Reviewer</label>
+    <referenceTo>User</referenceTo>
+    <relationshipName>Title_Reviews</relationshipName>
+    <required>false</required>
+    <trackTrending>false</trackTrending>
+    <type>Lookup</type>
+</CustomField>

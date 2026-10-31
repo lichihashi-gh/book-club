@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<CustomField xmlns="http://soap.sforce.com/2006/04/metadata">
+    <fullName>Meeting_Date__c</fullName>
+    <description>The confirmed date. Left blank when scheduling, it is filled with the date most members can make.</description>
+    <externalId>false</externalId>
+    <label>Meeting Date</label>
+    <required>false</required>
+    <trackTrending>false</trackTrending>
+    <type>Date</type>
+</CustomField>

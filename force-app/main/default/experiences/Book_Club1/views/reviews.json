@@ -1,0 +1,55 @@
+{
+  "appPageId": "0e050cee-7cb2-4305-9267-0fa5ab8218a3",
+  "componentName": "siteforce:sldsOneColLayout",
+  "dataProviders": [],
+  "id": "8d073f6d-6fc0-4353-a52c-7d30d0234c2e",
+  "label": "The Bookshelf",
+  "regions": [
+    {
+      "id": "2151358c-1282-400e-b7e0-9c6cc6358e13",
+      "regionName": "header",
+      "type": "region"
+    },
+    {
+      "components": [
+        {
+          "componentAttributes": {},
+          "componentName": "c:titleReviews",
+          "id": "508760ad-5ef5-47f5-a1d3-bf6c212acb68",
+          "renderPriority": "NEUTRAL",
+          "renditionMap": {},
+          "type": "component"
+        }
+      ],
+      "id": "04fe0fe4-a3a2-47ef-9923-2c0d3a8b7d56",
+      "regionName": "content",
+      "type": "region"
+    },
+    {
+      "id": "ce12f0f4-3961-462c-b64f-8bf360d17da4",
+      "regionName": "footer",
+      "type": "region"
+    },
+    {
+      "components": [
+        {
+          "componentAttributes": {
+            "customHeadTags": "",
+            "description": "",
+            "title": "The Bookshelf"
+          },
+          "componentName": "forceCommunity:seoAssistant",
+          "id": "d1477876-3642-42f0-973e-b1650e52dd14",
+          "renditionMap": {},
+          "type": "component"
+        }
+      ],
+      "id": "fc65a437-6d2f-4c9c-9a69-2a1dbedec2f7",
+      "regionName": "sfdcHiddenRegion",
+      "type": "region"
+    }
+  ],
+  "themeLayoutType": "Inner",
+  "type": "view",
+  "viewType": "custom-reviews"
+}

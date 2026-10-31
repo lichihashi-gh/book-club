@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<LightningComponentBundle xmlns="http://soap.sforce.com/2006/04/metadata">
+    <apiVersion>62.0</apiVersion>
+    <isExposed>true</isExposed>
+    <masterLabel>Book Club Welcome</masterLabel>
+    <description>Seasonal floral welcome banner with a literary quote of the day.</description>
+    <targets>
+        <target>lightningCommunity__Page</target>
+        <target>lightningCommunity__Default</target>
+        <target>lightning__AppPage</target>
+        <target>lightning__HomePage</target>
+    </targets>
+    <targetConfigs>
+        <targetConfig targets="lightningCommunity__Default">
+            <property name="season" type="String" label="Season" default="auto" datasource="auto,spring,summer,autumn,winter"
+                description="Auto follows the calendar. Pick a season to preview it."/>
+        </targetConfig>
+    </targetConfigs>
+</LightningComponentBundle>

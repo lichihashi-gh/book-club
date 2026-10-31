@@ -1,0 +1,278 @@
+<template>
+    <section class="reviews">
+        <header class="intro">
+            <h2 class="heading">The Bookshelf</h2>
+            <p class="subheading">Browse every title, suggest your next favorite, and share what you thought.</p>
+        </header>
+
+        <template lwc:if={error}>
+            <p class="slds-text-color_error" role="alert">{error}</p>
+        </template>
+        <template lwc:elseif={loaded}>
+            <lightning-layout multiple-rows>
+                <lightning-layout-item size="12" medium-device-size="5" padding="around-small">
+                    <template lwc:if={suggesting}>
+                        <div class="suggest-form" role="group" aria-labelledby="suggest-heading">
+                            <h3 class="suggest-heading" id="suggest-heading">Suggest a title</h3>
+                            <lightning-input
+                                data-id="suggest-name"
+                                label="Title"
+                                name="name"
+                                required
+                                max-length="80"
+                                value={suggestion.name}
+                                onchange={handleSuggestionChange}
+                            ></lightning-input>
+                            <lightning-input
+                                label="Author"
+                                name="author"
+                                max-length="255"
+                                value={suggestion.author}
+                                onchange={handleSuggestionChange}
+                            ></lightning-input>
+                            <lightning-combobox
+                                label="Type"
+                                name="titleType"
+                                options={typeOptions}
+                                value={suggestion.titleType}
+                                onchange={handleSuggestionChange}
+                            ></lightning-combobox>
+                            <lightning-textarea
+                                label="Why should we read it? (optional)"
+                                name="notes"
+                                max-length="2000"
+                                value={suggestion.notes}
+                                onchange={handleSuggestionChange}
+                            ></lightning-textarea>
+                            <div class="suggest-actions">
+                                <lightning-button label="Cancel" onclick={handleCancelSuggest} disabled={suggestSaving}></lightning-button>
+                                <lightning-button
+                                    class="slds-m-left_x-small"
+                                    variant="brand"
+                                    label="Add to the bookshelf"
+                                    disabled={suggestSaving}
+                                    onclick={handleSuggest}
+                                ></lightning-button>
+                            </div>
+                        </div>
+                    </template>
+                    <template lwc:else>
+                        <lightning-button
+                            class="suggest-button"
+                            label="Suggest a title"
+                            icon-name="utility:add"
+                            onclick={handleStartSuggest}
+                        ></lightning-button>
+                    </template>
+                    <lightning-input
+                        type="search"
+                        label="Find a title"
+                        placeholder="Title or author"
+                        value={searchTerm}
+                        onchange={handleSearch}
+                    ></lightning-input>
+                    <template lwc:if={hasFilteredTitles}>
+                        <ul class="title-list" aria-label="Titles">
+                            <template for:each={filteredTitles} for:item="title">
+                                <li key={title.id}>
+                                    <button
+                                        class={title.buttonClass}
+                                        data-id={title.id}
+                                        aria-current={title.isSelected}
+                                        onclick={handleSelect}
+                                    >
+                                        <span class="title-name">{title.name}</span>
+                                        <span class="title-author">{title.author}</span>
+                                        <span class="title-meta">
+                                            <span class={title.statusClass}>{title.status}</span>
+                                            <template lwc:if={title.hasReviews}>
+                                                <span class="stars" aria-hidden="true">{title.averageStars}</span>
+                                                <span class="title-count" aria-hidden="true">{title.averageRating} ({title.reviewCount})</span>
+                                            </template>
+                                            <template lwc:else>
+                                                <span class="title-count" aria-hidden="true">No reviews yet</span>
+                                            </template>
+                                            <span class="slds-assistive-text">{title.averageLabel}</span>
+                                            <template lwc:if={title.myStars}>
+                                                <span class="mine-badge">You: {title.myStars}</span>
+                                            </template>
+                                        </span>
+                                    </button>
+                                </li>
+                            </template>
+                        </ul>
+                    </template>
+                    <template lwc:else>
+                        <p class="hint">No titles match "{searchTerm}".</p>
+                    </template>
+                </lightning-layout-item>
+
+                <lightning-layout-item size="12" medium-device-size="7" padding="around-small">
+                    <template lwc:if={selected}>
+                        <div class="detail">
+                            <h3 class="detail-title">{selected.name}</h3>
+                            <p class="detail-author">{selected.author}</p>
+                            <template lwc:if={selected.notes}>
+                                <figure class="why-read">
+                                    <figcaption class="why-read-label">Why read it</figcaption>
+                                    <blockquote class="why-read-text">{selected.notes}</blockquote>
+                                </figure>
+                            </template>
+
+                            <template lwc:if={showOpenLibrary}>
+                                <h4 class="reviews-heading reviews-heading_spaced">What Open Library readers think</h4>
+                                <template lwc:if={loadingOpenLibrary}>
+                                    <p class="hint">Checking Open Library…</p>
+                                </template>
+                                <template lwc:elseif={openLibrary}>
+                                    <template lwc:if={openLibrary.found}>
+                                        <div class="ol-card">
+                                            <template lwc:if={openLibrary.showCover}>
+                                                <img class="ol-cover" src={openLibrary.coverUrl} alt="" onerror={handleCoverError} />
+                                            </template>
+                                            <div>
+                                                <template lwc:if={openLibrary.hasRating}>
+                                                    <p class="ol-score" aria-hidden="true">
+                                                        <span class="ol-number">{openLibrary.average}</span>
+                                                        <span class="stars">{openLibrary.stars}</span>
+                                                    </p>
+                                                    <p class="score-caption" aria-hidden="true">{openLibrary.countLabel}</p>
+                                                    <p class="slds-assistive-text">{openLibrary.label}</p>
+                                                </template>
+                                                <template lwc:else>
+                                                    <p class="ol-note">Open Library has this book, but no ratings yet.</p>
+                                                </template>
+                                                <a class="ol-link" href={openLibrary.url} target="_blank" rel="noopener noreferrer">
+                                                    View on Open Library<span class="slds-assistive-text"> (opens in a new tab)</span>
+                                                </a>
+                                                <template lwc:if={openLibrary.unavailable}>
+                                                    <p class="ol-note">Open Library couldn't be reached, so this may be out of date.</p>
+                                                </template>
+                                            </div>
+                                        </div>
+                                    </template>
+                                    <template lwc:elseif={openLibrary.unavailable}>
+                                        <p class="hint">Couldn't reach Open Library right now.</p>
+                                    </template>
+                                    <template lwc:else>
+                                        <p class="hint">Open Library doesn't have this book.</p>
+                                    </template>
+                                </template>
+                            </template>
+
+                            <section class="my-review" aria-labelledby="my-review-heading">
+                                <h4 class="my-review-heading" id="my-review-heading">{reviewHeading}</h4>
+                                <p class="my-review-intro">Pick your stars, then tell the club what you thought.</p>
+                                <fieldset class="star-picker">
+                                    <legend class="star-legend">How many stars would you give it?</legend>
+                                    <template for:each={starChoices} for:item="choice">
+                                        <span key={choice.value} class="star-choice">
+                                            <input
+                                                class="star-input"
+                                                type="radio"
+                                                name="rating"
+                                                id={choice.id}
+                                                value={choice.value}
+                                                checked={choice.checked}
+                                                onchange={handleRating}
+                                            />
+                                            <label class={choice.labelClass} for={choice.id}>
+                                                <span aria-hidden="true">★</span>
+                                                <span class="slds-assistive-text">{choice.label}</span>
+                                            </label>
+                                        </span>
+                                    </template>
+                                    <span class="star-caption" aria-hidden="true">{ratingCaption}</span>
+                                </fieldset>
+                                <lightning-textarea
+                                    label="What did you think? (optional)"
+                                    value={draftComment}
+                                    max-length="5000"
+                                    onchange={handleComment}
+                                ></lightning-textarea>
+                                <lightning-button
+                                    class="save-button"
+                                    variant="brand"
+                                    label={saveLabel}
+                                    disabled={cannotSave}
+                                    onclick={handleSave}
+                                ></lightning-button>
+                            </section>
+
+                            <h4 class="reviews-heading reviews-heading_spaced">What members think</h4>
+                            <template lwc:if={showScores}>
+                                <div class="score-summary">
+                                    <template lwc:if={scoreSummary}>
+                                        <div class="score-main">
+                                            <p class="score-number" aria-hidden="true">{scoreSummary.average}</p>
+                                            <p class="stars score-stars" aria-hidden="true">{scoreSummary.stars}</p>
+                                            <p class="score-caption" aria-hidden="true">{scoreSummary.countLabel}</p>
+                                            <p class="slds-assistive-text">{scoreSummary.label}</p>
+                                        </div>
+                                        <ul class="score-bars" aria-label="Ratings breakdown">
+                                            <template for:each={scoreSummary.bars} for:item="bar">
+                                                <li key={bar.key} class="score-bar-row">
+                                                    <span class="score-bar-label" aria-hidden="true">{bar.label}</span>
+                                                    <span class="score-bar-track" aria-hidden="true">
+                                                        <span class="score-bar-fill" style={bar.style}></span>
+                                                    </span>
+                                                    <span class="score-bar-count" aria-hidden="true">{bar.count}</span>
+                                                    <span class="slds-assistive-text">{bar.srLabel}</span>
+                                                </li>
+                                            </template>
+                                        </ul>
+                                    </template>
+                                    <template lwc:if={clubScore}>
+                                        <div class="club-score">
+                                            <p class="club-score-label" aria-hidden="true">Club score</p>
+                                            <p class="club-score-number" aria-hidden="true">{clubScore.value}</p>
+                                            <p class="stars" aria-hidden="true">{clubScore.stars}</p>
+                                            <p class="slds-assistive-text">Club score: {clubScore.value} out of 5 stars</p>
+                                        </div>
+                                    </template>
+                                </div>
+                            </template>
+                            <template lwc:if={loadingReviews}>
+                                <lightning-spinner alternative-text="Loading reviews" size="small"></lightning-spinner>
+                            </template>
+                            <template lwc:elseif={hasReviews}>
+                                <template for:each={reviewRows} for:item="review">
+                                    <article key={review.id} class={review.articleClass}>
+                                        <p class="review-header">
+                                            <span class="stars" aria-hidden="true">{review.stars}</span>
+                                            <span class="slds-assistive-text">{review.starsLabel}</span>
+                                            <span class="review-name">{review.reviewerName}</span>
+                                            <template lwc:if={review.isMine}>
+                                                <span class="mine-badge">Your review</span>
+                                            </template>
+                                        </p>
+                                        <p class="review-date">
+                                            <lightning-formatted-date-time
+                                                value={review.reviewedOn}
+                                                year="numeric"
+                                                month="long"
+                                                day="numeric"
+                                            ></lightning-formatted-date-time>
+                                        </p>
+                                        <template lwc:if={review.comment}>
+                                            <p class="review-comment">{review.comment}</p>
+                                        </template>
+                                    </article>
+                                </template>
+                            </template>
+                            <template lwc:else>
+                                <p class="hint">No one has reviewed this title yet. Be the first!</p>
+                            </template>
+                        </div>
+                    </template>
+                    <template lwc:else>
+                        <p class="hint hint_center">Choose a title to read reviews and write your own.</p>
+                    </template>
+                </lightning-layout-item>
+            </lightning-layout>
+        </template>
+        <template lwc:else>
+            <lightning-spinner alternative-text="Loading titles" size="small"></lightning-spinner>
+        </template>
+    </section>
+</template>

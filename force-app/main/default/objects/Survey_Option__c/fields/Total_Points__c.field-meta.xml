@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<CustomField xmlns="http://soap.sforce.com/2006/04/metadata">
+    <fullName>Total_Points__c</fullName>
+    <description>Sum of ranking points (top rank earns the most).</description>
+    <externalId>false</externalId>
+    <label>Total Points</label>
+    <summarizedField>Survey_Ranking__c.Points__c</summarizedField>
+    <summaryForeignKey>Survey_Ranking__c.Survey_Option__c</summaryForeignKey>
+    <summaryOperation>sum</summaryOperation>
+    <trackTrending>false</trackTrending>
+    <type>Summary</type>
+</CustomField>

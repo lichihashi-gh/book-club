@@ -1,0 +1,140 @@
+<template>
+    <div class="meeting">
+        <template lwc:if={error}>
+            <p class="slds-text-color_error" role="alert">{error}</p>
+        </template>
+        <template lwc:elseif={loaded}>
+            <template lwc:if={showPicker}>
+                <div class="slds-p-bottom_small">
+                    <lightning-combobox
+                        label="Meeting"
+                        options={meetingOptions}
+                        value={meetingId}
+                        onchange={handleMeetingChange}
+                    ></lightning-combobox>
+                </div>
+            </template>
+
+            <template lwc:if={meeting}>
+                <header class="intro">
+                    <p class="eyebrow">Book club meeting</p>
+                    <h2 class="heading">{meeting.titleName}</h2>
+                    <template lwc:if={meeting.author}>
+                        <p class="author">by {meeting.author}</p>
+                    </template>
+                </header>
+
+                <template lwc:if={isScheduled}>
+                    <section class="scheduled" aria-label="Meeting date">
+                        <p class="scheduled-label">We're meeting on</p>
+                        <p class="scheduled-date">{scheduledDateLabel}</p>
+                        <p class="scheduled-note">See you there, and happy reading!</p>
+                    </section>
+                </template>
+
+                <!-- Members answer on the site. -->
+                <template lwc:elseif={canRespond}>
+                    <section class="poll" aria-labelledby="poll-heading">
+                        <h3 class="poll-heading" id="poll-heading">Which Sundays can you make?</h3>
+                        <p class="poll-intro">
+                            We've left about a month for reading. Tick every date that works for you; leave them all
+                            unticked if none do.
+                        </p>
+                        <ul class="date-list">
+                            <template for:each={dateChoices} for:item="choice">
+                                <li key={choice.id}>
+                                    <label class={choice.cardClass}>
+                                        <input
+                                            type="checkbox"
+                                            class="date-input"
+                                            data-id={choice.id}
+                                            checked={choice.checked}
+                                            onchange={handleToggle}
+                                        />
+                                        <span class="date-check" aria-hidden="true"></span>
+                                        <span class="date-text">
+                                            <span class="date-weekday">{choice.weekday}</span>
+                                            <span class="date-day">{choice.day}</span>
+                                        </span>
+                                    </label>
+                                </li>
+                            </template>
+                        </ul>
+                        <p class="poll-summary" aria-live="polite">{pickedSummary}</p>
+                        <template lwc:if={meeting.hasResponded}>
+                            <p class="poll-responded">
+                                You answered on&nbsp;<lightning-formatted-date-time
+                                    value={meeting.submittedOn}
+                                    year="numeric"
+                                    month="short"
+                                    day="numeric"
+                                    hour="numeric"
+                                    minute="2-digit"
+                                ></lightning-formatted-date-time>. You can change it until the date is set.
+                            </p>
+                        </template>
+                        <lightning-button
+                            class="poll-save"
+                            variant="brand"
+                            label={submitLabel}
+                            disabled={saving}
+                            onclick={handleSubmit}
+                        ></lightning-button>
+                    </section>
+                </template>
+
+                <!-- The admin sees who can come and sets the date (internal app only). -->
+                <template lwc:elseif={canSchedule}>
+                    <section class="tally" aria-labelledby="tally-heading">
+                        <h3 class="poll-heading" id="tally-heading">Who can make it</h3>
+                        <p class="poll-intro">{responseSummary}</p>
+                        <ul class="tally-list">
+                            <template for:each={tallyRows} for:item="row">
+                                <li key={row.id} class={row.rowClass}>
+                                    <span class="tally-date">{row.label}</span>
+                                    <span class="tally-track" aria-hidden="true">
+                                        <span class="tally-fill" style={row.barStyle}></span>
+                                    </span>
+                                    <span class="tally-count">{row.countLabel}</span>
+                                </li>
+                            </template>
+                        </ul>
+                        <div class="slds-box slds-m-top_medium">
+                            <lightning-radio-group
+                                label="Meeting date"
+                                options={scheduleOptions}
+                                value={scheduleDate}
+                                onchange={handleScheduleChange}
+                                required
+                            ></lightning-radio-group>
+                            <template lwc:if={meeting.suggestedDate}>
+                                <p class="slds-text-body_small slds-text-color_weak slds-m-top_x-small">
+                                    The date most members can make is pre-selected (ties go to the earliest).
+                                </p>
+                            </template>
+                            <lightning-button
+                                class="slds-m-top_small"
+                                variant="brand"
+                                label="Schedule &amp; email members"
+                                disabled={scheduling}
+                                onclick={handleSchedule}
+                            ></lightning-button>
+                        </div>
+                    </section>
+                </template>
+
+                <template lwc:else>
+                    <p class="hint">Members are picking the dates they can make on the Book Club site.</p>
+                </template>
+            </template>
+            <template lwc:else>
+                <p class="hint hint_center">
+                    No meeting to plan yet. Once the club picks its next read, the dates to choose from appear here.
+                </p>
+            </template>
+        </template>
+        <template lwc:else>
+            <lightning-spinner alternative-text="Loading the meeting" size="small"></lightning-spinner>
+        </template>
+    </div>
+</template>

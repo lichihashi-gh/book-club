@@ -1,0 +1,177 @@
+:host {
+    --bc-parchment: #fbf6ee;
+    --bc-plum: #4a2c40;
+    --bc-muted: #6b4f60;
+    --bc-gold: #b08d57;
+    --bc-serif: 'Iowan Old Style', 'Palatino Linotype', Palatino, 'Book Antiqua', Georgia, serif;
+    display: block;
+}
+
+.welcome {
+    --bc-accent: #b5536b;
+    margin: 0 auto 1rem;
+    max-width: 60rem;
+    padding: 0.5rem 1.25rem 0.85rem;
+    color: var(--bc-plum);
+    font-family: var(--bc-serif);
+    background: var(--bc-parchment);
+    border: 1px solid rgba(176, 141, 87, 0.45);
+    border-radius: 0.5rem;
+    box-shadow: inset 0 0 0 4px var(--bc-parchment), inset 0 0 0 5px rgba(176, 141, 87, 0.3);
+    animation: bloom 0.8s ease-out both;
+}
+
+.garland {
+    display: block;
+    width: 100%;
+    max-width: 34rem;
+    height: auto;
+    max-height: 3rem;
+    margin: 0 auto;
+}
+
+.stem {
+    fill: none;
+    stroke-width: 2;
+    stroke-linecap: round;
+}
+
+.swirl {
+    fill: none;
+    stroke-width: 1.2;
+    stroke-linecap: round;
+}
+
+.content {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 1.5rem;
+    margin-top: 0.25rem;
+}
+
+.masthead {
+    flex: 0 0 auto;
+    text-align: center;
+}
+
+.eyebrow {
+    margin: 0;
+    font-size: 0.7rem;
+    letter-spacing: 0.16em;
+    text-transform: uppercase;
+    color: var(--bc-accent);
+}
+
+.title {
+    margin: 0;
+    font-size: clamp(1.6rem, 4vw, 2.25rem);
+    font-style: italic;
+    font-weight: 400;
+    line-height: 1.15;
+}
+
+.tagline {
+    margin: 0;
+    font-size: 0.9rem;
+    font-style: italic;
+    color: var(--bc-muted);
+}
+
+.quote {
+    flex: 1 1 22rem;
+    max-width: 30rem;
+    margin: 0;
+    padding-left: 1.5rem;
+    border-left: 1px solid rgba(176, 141, 87, 0.5);
+}
+
+.quote blockquote {
+    margin: 0;
+    font-size: 1rem;
+    line-height: 1.45;
+}
+
+.quote figcaption {
+    margin-top: 0.2rem;
+    font-size: 0.8rem;
+    color: var(--bc-muted);
+}
+
+.quote figcaption::before {
+    content: '— ';
+}
+
+/* A one-day message (a birthday, say) under the masthead. */
+.special {
+    margin: 0.85rem auto 0;
+    max-width: 40rem;
+    padding: 0.85rem 1.25rem;
+    text-align: center;
+    background: #fff4e6;
+    border: 2px dashed var(--bc-accent);
+    border-radius: 0.75rem;
+    animation: celebrate 0.9s ease-out 0.4s both;
+}
+
+.special-heading {
+    margin: 0;
+    font-size: clamp(1.4rem, 3.5vw, 1.9rem);
+    font-style: italic;
+    line-height: 1.2;
+    color: var(--bc-accent);
+}
+
+.special-message {
+    margin: 0.35rem 0 0;
+    font-size: 1.05rem;
+    line-height: 1.45;
+}
+
+@media (max-width: 40em) {
+    .content {
+        flex-direction: column;
+        gap: 0.5rem;
+    }
+
+    .quote {
+        flex-basis: auto;
+        padding-left: 0;
+        padding-top: 0.5rem;
+        border-left: 0;
+        border-top: 1px solid rgba(176, 141, 87, 0.5);
+        text-align: center;
+    }
+}
+
+@keyframes bloom {
+    from {
+        opacity: 0;
+        transform: translateY(4px);
+    }
+    to {
+        opacity: 1;
+        transform: none;
+    }
+}
+
+@keyframes celebrate {
+    0% {
+        opacity: 0;
+        transform: scale(0.92);
+    }
+    70% {
+        opacity: 1;
+        transform: scale(1.03);
+    }
+    100% {
+        transform: none;
+    }
+}
+
+@media (prefers-reduced-motion: reduce) {
+    .welcome,
+    .special {
+        animation: none;
+    }
+}

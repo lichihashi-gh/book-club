@@ -1,0 +1,4 @@
+<!-- Overrides the New button on Book Club Surveys. LWCs can't override standard actions directly. -->
+<aura:component implements="lightning:actionOverride">
+    <c:surveyBuilder />
+</aura:component>

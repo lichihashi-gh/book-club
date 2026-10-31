@@ -1,0 +1,12 @@
+{
+  "activeViewId": "8d073f6d-6fc0-4353-a52c-7d30d0234c2e",
+  "appPageId": "0e050cee-7cb2-4305-9267-0fa5ab8218a3",
+  "configurationTags": [],
+  "devName": "Reviews",
+  "id": "ac783fa9-0f5e-4b51-b2a5-325c5c6acf26",
+  "label": "The Bookshelf",
+  "pageAccess": "UseParent",
+  "routeType": "custom-reviews",
+  "type": "route",
+  "urlPrefix": "bookshelf"
+}

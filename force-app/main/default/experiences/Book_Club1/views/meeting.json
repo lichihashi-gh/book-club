@@ -1,0 +1,55 @@
+{
+  "appPageId": "0e050cee-7cb2-4305-9267-0fa5ab8218a3",
+  "componentName": "siteforce:sldsOneColLayout",
+  "dataProviders": [],
+  "id": "908f5743-c4c1-478c-b6be-dd5f37aa29da",
+  "label": "Pick a Meeting Date",
+  "regions": [
+    {
+      "id": "2bbcd5ee-1c59-48a1-8276-aff48eb715c0",
+      "regionName": "header",
+      "type": "region"
+    },
+    {
+      "components": [
+        {
+          "componentAttributes": {},
+          "componentName": "c:meetingPoll",
+          "id": "961114b0-f755-4202-80e3-97ddce9f7659",
+          "renderPriority": "NEUTRAL",
+          "renditionMap": {},
+          "type": "component"
+        }
+      ],
+      "id": "a6caee75-387c-4290-9f13-7e35b5084166",
+      "regionName": "content",
+      "type": "region"
+    },
+    {
+      "id": "85743de8-f796-4abc-b81f-8ed56410ba93",
+      "regionName": "footer",
+      "type": "region"
+    },
+    {
+      "components": [
+        {
+          "componentAttributes": {
+            "customHeadTags": "",
+            "description": "",
+            "title": "Pick a Meeting Date"
+          },
+          "componentName": "forceCommunity:seoAssistant",
+          "id": "a0c88e24-2a8c-4c6f-98b6-498cc2905aac",
+          "renditionMap": {},
+          "type": "component"
+        }
+      ],
+      "id": "c7caab47-b941-462e-ab47-cefa472c1176",
+      "regionName": "sfdcHiddenRegion",
+      "type": "region"
+    }
+  ],
+  "themeLayoutType": "Inner",
+  "type": "view",
+  "viewType": "custom-meeting"
+}

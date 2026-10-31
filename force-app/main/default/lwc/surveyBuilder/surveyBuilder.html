@@ -1,0 +1,50 @@
+<template>
+    <lightning-card title="New Book Club Survey" icon-name="custom:custom55">
+        <div class="slds-p-horizontal_medium">
+            <p class="slds-m-bottom_small">
+                The survey is named after today's date when you save it.
+            </p>
+            <template lwc:if={error}>
+                <p class="slds-text-color_error" role="alert">{error}</p>
+            </template>
+            <template lwc:elseif={loaded}>
+                <template lwc:if={hasTitles}>
+                    <p class="slds-text-body_small slds-text-color_weak slds-m-bottom_x-small" aria-live="polite">
+                        {selectionSummary}
+                    </p>
+                    <lightning-datatable
+                        key-field="id"
+                        data={titles}
+                        columns={columns}
+                        max-row-selection={maxTitles}
+                        selected-rows={selectedIds}
+                        onrowselection={handleRowSelection}
+                        resize-column-disabled
+                    ></lightning-datatable>
+                </template>
+                <template lwc:else>
+                    <p>There are no Suggested titles. Add some on the Titles tab first.</p>
+                </template>
+            </template>
+            <template lwc:else>
+                <lightning-spinner alternative-text="Loading titles" size="small"></lightning-spinner>
+            </template>
+        </div>
+        <div slot="footer" class="slds-text-align_right">
+            <lightning-button label="Cancel" onclick={handleCancel} disabled={saving}></lightning-button>
+            <lightning-button
+                class="slds-m-left_x-small"
+                label="Save as Draft"
+                onclick={handleSaveDraft}
+                disabled={cannotSave}
+            ></lightning-button>
+            <lightning-button
+                class="slds-m-left_x-small"
+                variant="brand"
+                label="Create &amp; Publish"
+                onclick={handlePublish}
+                disabled={cannotSave}
+            ></lightning-button>
+        </div>
+    </lightning-card>
+</template>
