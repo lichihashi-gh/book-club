@@ -1,25 +1,6 @@
-# Salesforce API
+# Book Club
 
-Salesforce DX project containing Apex classes and REST endpoints consumed by the sibling **OSS LWC Fun** Next.js application.
-
-## Starter endpoint
-
-The `AccountApi` Apex REST resource is exposed at:
-
-```text
-/services/apexrest/accounts
-```
-
-Optional query parameters:
-
-- `search`: account-name search term
-- `limit`: result count between 1 and 200; defaults to 20
-
-Example:
-
-```text
-/services/apexrest/accounts?search=Acme&limit=10
-```
+Salesforce DX project containing components for Book Club
 
 ## Development workflow
 
