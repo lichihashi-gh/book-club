@@ -96,6 +96,9 @@
                                             <template lwc:if={title.myStars}>
                                                 <span class="mine-badge">You: {title.myStars}</span>
                                             </template>
+                                            <template lwc:if={title.canEdit}>
+                                                <span class="mine-badge">Your suggestion</span>
+                                            </template>
                                         </span>
                                     </button>
                                 </li>
@@ -110,13 +113,70 @@
                 <lightning-layout-item size="12" medium-device-size="7" padding="around-small">
                     <template lwc:if={selected}>
                         <div class="detail">
-                            <h3 class="detail-title">{selected.name}</h3>
-                            <p class="detail-author">{selected.author}</p>
-                            <template lwc:if={selected.notes}>
-                                <figure class="why-read">
-                                    <figcaption class="why-read-label">Why read it</figcaption>
-                                    <blockquote class="why-read-text">{selected.notes}</blockquote>
-                                </figure>
+                            <template lwc:if={editing}>
+                                <!-- Only the member who entered a title, while it's still Suggested. -->
+                                <div class="suggest-form" role="group" aria-labelledby="edit-heading">
+                                    <h3 class="suggest-heading" id="edit-heading">Edit your suggestion</h3>
+                                    <lightning-input
+                                        data-id="edit-name"
+                                        label="Title"
+                                        name="name"
+                                        required
+                                        max-length="80"
+                                        value={edit.name}
+                                        onchange={handleEditChange}
+                                    ></lightning-input>
+                                    <lightning-input
+                                        label="Author"
+                                        name="author"
+                                        max-length="255"
+                                        value={edit.author}
+                                        onchange={handleEditChange}
+                                    ></lightning-input>
+                                    <lightning-combobox
+                                        label="Type"
+                                        name="titleType"
+                                        options={typeOptions}
+                                        value={edit.titleType}
+                                        onchange={handleEditChange}
+                                    ></lightning-combobox>
+                                    <lightning-textarea
+                                        label="Why should we read it? (optional)"
+                                        name="notes"
+                                        max-length="2000"
+                                        value={edit.notes}
+                                        onchange={handleEditChange}
+                                    ></lightning-textarea>
+                                    <div class="suggest-actions">
+                                        <lightning-button label="Cancel" onclick={handleCancelEdit} disabled={editSaving}></lightning-button>
+                                        <lightning-button
+                                            class="slds-m-left_x-small"
+                                            variant="brand"
+                                            label="Save changes"
+                                            disabled={editSaving}
+                                            onclick={handleSaveEdit}
+                                        ></lightning-button>
+                                    </div>
+                                </div>
+                            </template>
+                            <template lwc:else>
+                                <h3 class="detail-title">{selected.name}</h3>
+                                <p class="detail-author">{selected.author}</p>
+                                <template lwc:if={selected.notes}>
+                                    <figure class="why-read">
+                                        <figcaption class="why-read-label">Why read it</figcaption>
+                                        <blockquote class="why-read-text">{selected.notes}</blockquote>
+                                    </figure>
+                                </template>
+                                <template lwc:if={selected.canEdit}>
+                                    <lightning-button
+                                        class="edit-button"
+                                        label="Edit my suggestion"
+                                        icon-name="utility:edit"
+                                        title="Fix a mistake or add notes. Only you can see this button."
+                                        onclick={handleStartEdit}
+                                    ></lightning-button>
+                                </template>
                             </template>
 
                             <template lwc:if={showOpenLibrary}>

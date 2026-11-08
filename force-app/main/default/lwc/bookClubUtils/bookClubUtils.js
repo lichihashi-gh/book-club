@@ -11,3 +11,8 @@ export function reduceErrors(error) {
         })
         .join(', ');
 }
+
+// October 31 in the viewer's time zone.
+export function isHalloween(date = new Date()) {
+    return date.getMonth() === 9 && date.getDate() === 31;
+}

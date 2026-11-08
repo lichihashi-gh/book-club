@@ -72,14 +72,5 @@
                 <figcaption>{quote.author}, <cite>{quote.work}</cite></figcaption>
             </figure>
         </div>
-
-        <template lwc:if={specialDay}>
-            <section class="special" aria-label={specialDay.heading}>
-                <p class="special-heading">
-                    <span aria-hidden="true">🎂 </span>{specialDay.heading}<span aria-hidden="true"> 🎉</span>
-                </p>
-                <p class="special-message">{specialDay.message}<span aria-hidden="true"> 🎃</span></p>
-            </section>
-        </template>
     </header>
 </template>

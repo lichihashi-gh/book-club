@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<LightningComponentBundle xmlns="http://soap.sforce.com/2006/04/metadata">
+    <apiVersion>62.0</apiVersion>
+    <isExposed>true</isExposed>
+    <masterLabel>Book Club Logo</masterLabel>
+    <description>Book Club logo for the login page: an open book, or a jack-o'-lantern on a stack of books on Halloween.</description>
+    <targets>
+        <target>lightningCommunity__Page</target>
+        <target>lightningCommunity__Default</target>
+    </targets>
+    <targetConfigs>
+        <targetConfig targets="lightningCommunity__Default">
+            <property name="theme" type="String" label="Theme" default="auto" datasource="auto,regular,halloween"
+                description="Auto shows the Halloween logo on October 31 only. Pick one to preview it."/>
+        </targetConfig>
+    </targetConfigs>
+</LightningComponentBundle>
