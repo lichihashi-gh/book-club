@@ -13,7 +13,7 @@
     "HeaderFonts": "Montserrat",
     "LinkColor": "#8E3B5A",
     "LoginBackgroundColor": "#F3E3E0",
-    "LoginBackgroundImage": "",
+    "LoginBackgroundImage": "/bookclub/resource/Book_Club_Login_Background",
     "OverlayTextColor": "#FFFFFF",
     "PrimaryFont": "Lato",
     "TextColor": "#3D2B33",

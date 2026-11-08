@@ -149,7 +149,6 @@ export default class BookClubSurvey extends LightningElement {
         }
         event.preventDefault();
         this.activeTabId = ids[next];
-        // eslint-disable-next-line @lwc/lwc/no-async-operation
         Promise.resolve().then(() => this.template.querySelector(`[data-id="${ids[next]}"]`)?.focus());
     }
 

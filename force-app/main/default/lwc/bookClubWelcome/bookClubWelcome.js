@@ -1,4 +1,5 @@
 import { LightningElement, api } from 'lwc';
+import { isHalloween } from 'c/bookClubUtils';
 
 // Public-domain lines; one is shown per day.
 const QUOTES = [
@@ -15,17 +16,6 @@ const QUOTES = [
     { text: 'Hope is the thing with feathers / That perches in the soul.', author: 'Emily Dickinson', work: 'Poem 254' },
     { text: 'Isn\'t it nice to think that tomorrow is a new day with no mistakes in it yet?', author: 'L. M. Montgomery', work: 'Anne of Green Gables' }
 ];
-
-// Messages for one day only (YYYY-MM-DD), by the viewer's local date.
-const SPECIAL_DAYS = {
-    '2026-10-31': {
-        heading: 'Happy Birthday, Amy!',
-        message: 'Wishing you a year full of wonderful books, and a spooky-sweet Halloween birthday from all of us at the book club.'
-    }
-};
-
-// Every year on this date (MM-DD) the autumn garland swaps its acorns for pumpkins.
-const HALLOWEEN = '10-31';
 
 // Leaf outlines, drawn from the stem outwards (0,0 sits on the stem).
 const LEAF_OVAL = 'M0 0 C 5 -8, 17 -8, 22 0 C 17 8, 5 8, 0 0 Z';
@@ -122,19 +112,11 @@ export default class BookClubWelcome extends LightningElement {
         return SEASONS[this.seasonKey];
     }
 
-    get todayKey() {
-        const now = new Date();
-        const pad = (n) => String(n).padStart(2, '0');
-        return `${now.getFullYear()}-${pad(now.getMonth() + 1)}-${pad(now.getDate())}`;
-    }
-
+    // Every Halloween the autumn garland swaps its acorns for pumpkins.
     get isHalloween() {
-        return this.todayKey.endsWith(HALLOWEEN);
+        return isHalloween();
     }
 
-    get specialDay() {
-        return SPECIAL_DAYS[this.todayKey];
-    }
 
     get bannerStyle() {
         return `--bc-accent: ${this.theme.accent};`;

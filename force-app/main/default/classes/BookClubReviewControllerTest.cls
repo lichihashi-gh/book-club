@@ -108,6 +108,62 @@ private class BookClubReviewControllerTest {
     }
 
     @IsTest
+    static void onlyTheSuggesterCanEditTheirSuggestion() {
+        User suggester = user('rvmem1');
+        Id possession;
+        System.runAs(suggester) {
+            possession = BookClubReviewController.suggestTitle('Posession', 'A. S. Byat', 'Book', null);
+        }
+        // As if Open Library had been checked under the misspelled name.
+        update new Title__c(Id = possession, Open_Library_Checked_On__c = Datetime.now(), Open_Library_Key__c = '/works/OL1W');
+        System.runAs(suggester) {
+            BookClubReviewController.updateSuggestion(possession, ' Possession ', ' A. S. Byatt ', 'Book', ' Won the Booker. ');
+            Title__c fixed = [SELECT Name, Author__c, Notes__c, Status__c, Suggested_By__c FROM Title__c WHERE Id = :possession];
+            Assert.areEqual('Possession', fixed.Name);
+            Assert.areEqual('A. S. Byatt', fixed.Author__c);
+            Assert.areEqual('Won the Booker.', fixed.Notes__c);
+            Assert.areEqual('Suggested', fixed.Status__c, 'Editing never changes the status');
+            Assert.areEqual(suggester.Id, fixed.Suggested_By__c);
+            Title__c cache = [SELECT Open_Library_Checked_On__c, Open_Library_Key__c FROM Title__c WHERE Id = :possession WITH SYSTEM_MODE];
+            Assert.isNull(cache.Open_Library_Checked_On__c, 'A renamed title is looked up on Open Library again');
+            Assert.isNull(cache.Open_Library_Key__c);
+
+            for (BookClubReviewController.TitleSummary summary : BookClubReviewController.getTitles()) {
+                Assert.areEqual(summary.id == possession, summary.canEdit, 'Only the member\'s own suggestion is editable: ' + summary.name);
+            }
+
+            try {
+                BookClubReviewController.updateSuggestion(possession, 'Middlemarch', 'George Eliot', 'Book', null);
+                Assert.fail('Renaming into an existing title is refused');
+            } catch (AuraHandledException e) {
+                Assert.isTrue(e.getMessage().contains('already on the bookshelf'), e.getMessage());
+            }
+        }
+
+        System.runAs(user('rvmem2')) {
+            for (Id titleId : new List<Id>{ possession, title('Middlemarch') }) {
+                try {
+                    BookClubReviewController.updateSuggestion(titleId, 'Hijacked', null, 'Book', null);
+                    Assert.fail('Other members cannot edit it');
+                } catch (AuraHandledException e) {
+                    Assert.areEqual(BookClubReviewController.NOT_YOUR_SUGGESTION, e.getMessage());
+                }
+            }
+        }
+
+        update new Title__c(Id = possession, Status__c = 'Selected');
+        System.runAs(suggester) {
+            try {
+                BookClubReviewController.updateSuggestion(possession, 'Possession: A Romance', 'A. S. Byatt', 'Book', null);
+                Assert.fail('Chosen titles are locked');
+            } catch (AuraHandledException e) {
+                Assert.areEqual(BookClubReviewController.NO_LONGER_SUGGESTED, e.getMessage());
+            }
+        }
+        Assert.areEqual('Possession', [SELECT Name FROM Title__c WHERE Id = :possession].Name);
+    }
+
+    @IsTest
     static void ratingsMustBeOneToFiveStars() {
         System.runAs(user('rvmem1')) {
             for (Integer rating : new List<Integer>{ null, 0, 6 }) {

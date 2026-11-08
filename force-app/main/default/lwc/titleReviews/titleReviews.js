@@ -4,6 +4,7 @@ import getTitles from '@salesforce/apex/BookClubReviewController.getTitles';
 import getReviews from '@salesforce/apex/BookClubReviewController.getReviews';
 import saveReview from '@salesforce/apex/BookClubReviewController.saveReview';
 import suggestTitle from '@salesforce/apex/BookClubReviewController.suggestTitle';
+import updateSuggestion from '@salesforce/apex/BookClubReviewController.updateSuggestion';
 import getOpenLibraryRating from '@salesforce/apex/BookClubReviewController.getOpenLibraryRating';
 import { reduceErrors } from 'c/bookClubUtils';
 
@@ -17,13 +18,16 @@ function stars(count) {
     return '★'.repeat(filled) + '☆'.repeat(MAX_STARS - filled);
 }
 
-// "The Bookshelf": members browse every title, suggest new ones, rate any title
+// "The Bookshelf": members browse every title, suggest new ones (and edit their own while Suggested), rate any title
 // 1–5 stars with a comment (one review each, editable), and read everyone's reviews.
 export default class TitleReviews extends LightningElement {
     typeOptions = TYPE_OPTIONS;
     suggesting = false;
     suggestSaving = false;
     suggestion = { ...EMPTY_SUGGESTION };
+    editing = false;
+    editSaving = false;
+    edit = { ...EMPTY_SUGGESTION };
     titles = [];
     openLibraryRating;
     loadingOpenLibrary = false;
@@ -81,7 +85,7 @@ export default class TitleReviews extends LightningElement {
             if (titleId === this.selectedId) {
                 this.openLibraryRating = rating;
             }
-        } catch (error) {
+        } catch {
             if (titleId === this.selectedId) {
                 this.openLibraryRating = { found: false, unavailable: true };
             }
@@ -262,12 +266,46 @@ export default class TitleReviews extends LightningElement {
         }
     }
 
+    handleStartEdit() {
+        const { name, author, titleType, notes } = this.selected;
+        this.edit = { name, author: author ?? '', titleType: titleType ?? 'Book', notes: notes ?? '' };
+        this.editing = true;
+        Promise.resolve().then(() => this.template.querySelector('[data-id="edit-name"]')?.focus());
+    }
+
+    handleCancelEdit() {
+        this.editing = false;
+    }
+
+    handleEditChange(event) {
+        this.edit = { ...this.edit, [event.target.name]: event.detail.value };
+    }
+
+    async handleSaveEdit() {
+        if (!this.template.querySelector('[data-id="edit-name"]').reportValidity()) {
+            return;
+        }
+        this.editSaving = true;
+        try {
+            await updateSuggestion({ titleId: this.selectedId, ...this.edit });
+            this.toast('Suggestion updated', `Your changes to "${this.edit.name.trim()}" are saved.`, 'success');
+            this.editing = false;
+            await this.loadTitles();
+            this.loadOpenLibrary();
+        } catch (error) {
+            this.toast('Could not save your changes', reduceErrors(error), 'error');
+        } finally {
+            this.editSaving = false;
+        }
+    }
+
     handleSearch(event) {
         this.searchTerm = event.target.value ?? '';
     }
 
     handleSelect(event) {
         this.selectedId = event.currentTarget.dataset.id;
+        this.editing = false;
         this.reviews = [];
         this.loadReviews();
         this.loadOpenLibrary();

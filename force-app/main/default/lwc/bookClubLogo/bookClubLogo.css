@@ -1,0 +1,56 @@
+:host {
+    --bc-plum: #4a2c40;
+    --bc-muted: #6b4f60;
+    --bc-serif: 'Iowan Old Style', 'Palatino Linotype', Palatino, 'Book Antiqua', Georgia, serif;
+    display: block;
+}
+
+/* A parchment plaque so the logo reads clearly over the background photo. */
+.plaque {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.75rem;
+    max-width: 26rem;
+    margin: 0 auto 1rem;
+    padding: 0.75rem 1.25rem;
+    color: var(--bc-plum);
+    font-family: var(--bc-serif);
+    background: rgba(251, 246, 238, 0.95);
+    border: 1px solid rgba(176, 141, 87, 0.6);
+    border-radius: 0.75rem;
+    box-shadow: 0 8px 24px rgba(0, 0, 0, 0.35);
+}
+
+.plaque_halloween {
+    border: 2px solid #e07b24;
+}
+
+.mark {
+    flex-shrink: 0;
+    width: 4.5rem;
+    height: 4.5rem;
+}
+
+.title {
+    margin: 0;
+    font-size: 1.9rem;
+    font-style: italic;
+    line-height: 1.1;
+}
+
+.subtitle {
+    margin: 0.2rem 0 0;
+    font-size: 0.95rem;
+    font-style: italic;
+    color: var(--bc-muted);
+}
+
+.plaque_halloween .subtitle {
+    font-size: 0.85rem;
+    font-style: normal;
+    font-weight: 700;
+    letter-spacing: 0.16em;
+    text-transform: uppercase;
+    color: #a24f10;
+}

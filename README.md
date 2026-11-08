@@ -46,7 +46,7 @@ The member gets a welcome email to set a password. The org has 40 External Apps 
 
 ### The Bookshelf
 
-On **The Bookshelf** tab, members browse every title, suggest new ones (**Suggest a title**: the title is added as Suggested, credited to them, and shows up in the survey builder), and rate any title (suggested, selected or reviewed): 1 to 5 stars plus an optional comment. For books, a **What Open Library readers think** section shows the book's rating on [Open Library](https://openlibrary.org), with its cover and a link. It's looked up by title and author, saved on the Title, and refreshed weekly. Each member can review a title once and edit that review any time. Everyone can read everyone's reviews, but only the author can change theirs. In the Book Club Admin app, a title's reviews appear in the **Reviews** related list on the Title page.
+On **The Bookshelf** tab, members browse every title, suggest new ones (**Suggest a title**: the title is added as Suggested, credited to them, and shows up in the survey builder), fix their own suggestions (**Edit my suggestion**: only the member who entered a title sees it, and only while it's still Suggested), and rate any title (suggested, selected or reviewed): 1 to 5 stars plus an optional comment. For books, a **What Open Library readers think** section shows the book's rating on [Open Library](https://openlibrary.org), with its cover and a link. It's looked up by title and author, saved on the Title, and refreshed weekly. Each member can review a title once and edit that review any time. Everyone can read everyone's reviews, but only the author can change theirs. In the Book Club Admin app, a title's reviews appear in the **Reviews** related list on the Title page.
 
 ### Scheduling the meeting
 
