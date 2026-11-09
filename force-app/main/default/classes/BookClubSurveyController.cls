@@ -60,6 +60,117 @@ public with sharing class BookClubSurveyController {
         }
     }
 
+    // For the builder's edit mode (the Edit button on a survey): its name, status and
+    // titles in display order, plus those titles' details so they can be shown even
+    // if they're no longer Suggested.
+    @AuraEnabled
+    public static SurveyEdit getSurveyForEdit(Id surveyId) {
+        if (!isAdmin()) {
+            throw error('Only a book club admin can edit a survey.');
+        }
+        Survey__c survey = [SELECT Id, Name, Status__c FROM Survey__c WHERE Id = :surveyId WITH USER_MODE];
+        SurveyEdit edit = new SurveyEdit(survey);
+        edit.responseCount = new ResponseCounter().countFor(surveyId);
+        for (Survey_Option__c option : [
+            SELECT Title__c, Title__r.Name, Title__r.Author__c, Title__r.Title_Type__c,
+                Title__r.Suggested_By__r.Name, Title__r.Suggested_On__c
+            FROM Survey_Option__c
+            WHERE Survey__c = :surveyId
+            WITH USER_MODE
+            ORDER BY Display_Order__c NULLS LAST, CreatedDate
+        ]) {
+            edit.titleIds.add(option.Title__c);
+            edit.titles.add(new CandidateTitle(option.Title__r));
+        }
+        return edit;
+    }
+
+    // Moves a Published survey back to Draft so its titles can change. Any votes are
+    // deleted (with their rankings), because they ranked the old titles; members vote
+    // again once it's republished. Closed surveys stay closed.
+    @AuraEnabled
+    public static void unpublishSurvey(Id surveyId) {
+        if (!isAdmin()) {
+            throw error('Only a book club admin can edit a survey.');
+        }
+        Survey__c survey = [SELECT Id, Status__c FROM Survey__c WHERE Id = :surveyId WITH USER_MODE];
+        if (survey.Status__c != STATUS_PUBLISHED) {
+            throw error('Only a Published survey can go back to Draft.');
+        }
+        Savepoint savepoint = Database.setSavepoint();
+        try {
+            delete as user [SELECT Id FROM Survey_Response__c WHERE Survey__c = :surveyId WITH USER_MODE];
+            survey.Status__c = STATUS_DRAFT;
+            update as user survey;
+        } catch (DmlException e) {
+            Database.rollback(savepoint);
+            throw error(e.getDmlMessage(0));
+        }
+    }
+
+    // Saves the builder's edit mode. A Draft can change its titles (2 to 5) and be
+    // published; once a survey is Published or Closed its titles are locked (the
+    // Only_Change_Draft_Surveys rule), so only the name can change.
+    @AuraEnabled
+    public static void updateSurvey(Id surveyId, String name, List<Id> titleIds, Boolean publish) {
+        if (!isAdmin()) {
+            throw error('Only a book club admin can edit a survey.');
+        }
+        Survey__c survey = [SELECT Id, Name, Status__c FROM Survey__c WHERE Id = :surveyId WITH USER_MODE];
+        List<Survey_Option__c> current = [
+            SELECT Id, Title__c FROM Survey_Option__c WHERE Survey__c = :surveyId WITH USER_MODE
+        ];
+        List<Id> picked = titleIds == null ? new List<Id>() : titleIds;
+        Set<Id> pickedSet = new Set<Id>(picked);
+        Set<Id> currentSet = new Set<Id>();
+        for (Survey_Option__c option : current) {
+            currentSet.add(option.Title__c);
+        }
+        Boolean isDraft = survey.Status__c == STATUS_DRAFT;
+        if (!isDraft && !pickedSet.equals(currentSet)) {
+            throw error('Titles can\'t change once a survey is published.');
+        }
+        if (picked.size() < 2 || picked.size() > MAX_OPTIONS || pickedSet.size() != picked.size()) {
+            throw error('Pick 2 to ' + MAX_OPTIONS + ' different titles.');
+        }
+
+        Savepoint savepoint = Database.setSavepoint();
+        try {
+            if (isDraft) {
+                // Remove first, so the survey never has more than MAX_OPTIONS on the way.
+                List<Survey_Option__c> removed = new List<Survey_Option__c>();
+                Map<Id, Survey_Option__c> kept = new Map<Id, Survey_Option__c>();
+                for (Survey_Option__c option : current) {
+                    if (pickedSet.contains(option.Title__c)) {
+                        kept.put(option.Title__c, option);
+                    } else {
+                        removed.add(option);
+                    }
+                }
+                delete as user removed;
+                List<Survey_Option__c> upserts = new List<Survey_Option__c>();
+                for (Integer i = 0; i < picked.size(); i++) {
+                    Survey_Option__c option = kept.containsKey(picked[i])
+                        ? new Survey_Option__c(Id = kept.get(picked[i]).Id)
+                        : new Survey_Option__c(Survey__c = surveyId, Title__c = picked[i]);
+                    option.Display_Order__c = i + 1;
+                    upserts.add(option);
+                }
+                upsert as user upserts;
+            }
+            if (String.isNotBlank(name)) {
+                survey.Name = name.trim();
+            }
+            if (isDraft && publish == true) {
+                survey.Status__c = STATUS_PUBLISHED;
+            }
+            update as user survey;
+        } catch (DmlException e) {
+            Database.rollback(savepoint);
+            throw error(e.getDmlMessage(0));
+        }
+    }
+
     @AuraEnabled(cacheable=true)
     public static SurveyList getSurveys() {
         SurveyList result = new SurveyList();
@@ -285,6 +396,23 @@ public with sharing class BookClubSurveyController {
             titleType = title.Title_Type__c;
             suggestedBy = title.Suggested_By__r?.Name;
             suggestedOn = title.Suggested_On__c;
+        }
+    }
+
+    public class SurveyEdit {
+        @AuraEnabled public Id id;
+        @AuraEnabled public String name;
+        @AuraEnabled public String status;
+        // The survey's titles, in display order.
+        @AuraEnabled public List<Id> titleIds = new List<Id>();
+        @AuraEnabled public List<CandidateTitle> titles = new List<CandidateTitle>();
+        // Members who have voted; moving back to Draft clears their votes.
+        @AuraEnabled public Integer responseCount = 0;
+
+        public SurveyEdit(Survey__c survey) {
+            id = survey.Id;
+            name = survey.Name;
+            status = survey.Status__c;
         }
     }
 

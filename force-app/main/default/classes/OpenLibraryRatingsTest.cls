@@ -5,13 +5,18 @@ private class OpenLibraryRatingsTest {
 
     class OpenLibraryMock implements HttpCalloutMock {
         Integer status;
-        String body;
+        List<String> bodies;
         Integer calls = 0;
         String lastEndpoint;
 
         OpenLibraryMock(Integer status, String body) {
+            this(status, new List<String>{ body });
+        }
+
+        // One body per call, in order; the last one repeats.
+        OpenLibraryMock(Integer status, List<String> bodies) {
             this.status = status;
-            this.body = body;
+            this.bodies = bodies;
         }
 
         public HttpResponse respond(HttpRequest request) {
@@ -19,7 +24,7 @@ private class OpenLibraryRatingsTest {
             lastEndpoint = request.getEndpoint();
             HttpResponse response = new HttpResponse();
             response.setStatusCode(status);
-            response.setBody(body);
+            response.setBody(bodies.get(Math.min(calls, bodies.size()) - 1));
             return response;
         }
     }
@@ -115,5 +120,40 @@ private class OpenLibraryRatingsTest {
         Assert.isNull(BookClubReviewController.getOpenLibraryRating(title('Little Women')));
         Test.stopTest();
         Assert.areEqual(0, mock.calls);
+    }
+
+    @IsTest
+    static void checkingABookBeforeSavingIt() {
+        String none = '{"numFound":0,"docs":[]}';
+        String possession = '{"numFound":1,"docs":[{"key":"/works/OL1W","title":"Possession",'
+            + '"author_name":["A. S. Byatt"],"cover_i":42}]}';
+
+        OpenLibraryMock mock = new OpenLibraryMock(200, possession);
+        Test.setMock(HttpCalloutMock.class, mock);
+        Test.startTest();
+        OpenLibraryRatings.Match found = BookClubReviewController.checkOpenLibrary(' Possession ', 'A. S. Byatt');
+        Assert.isTrue(found.found);
+        Assert.areEqual('Possession', found.title);
+        Assert.areEqual('https://openlibrary.org/works/OL1W', found.url);
+        Assert.areEqual(1, mock.calls, 'A match needs one lookup');
+
+        mock = new OpenLibraryMock(200, new List<String>{ none, possession });
+        Test.setMock(HttpCalloutMock.class, mock);
+        OpenLibraryRatings.Match typo = BookClubReviewController.checkOpenLibrary('Possession', 'A. S. Byat');
+        Assert.isFalse(typo.found, 'The misspelled author doesn\'t match');
+        Assert.areEqual('Possession', typo.title, 'The title alone suggests the right book');
+        Assert.areEqual('A. S. Byatt', typo.author);
+        Assert.isFalse(mock.lastEndpoint.contains('author='), 'The second lookup is by title only');
+
+        mock = new OpenLibraryMock(200, none);
+        Test.setMock(HttpCalloutMock.class, mock);
+        OpenLibraryRatings.Match unknown = BookClubReviewController.checkOpenLibrary('Our Own Zine', null);
+        Assert.isFalse(unknown.found);
+        Assert.isNull(unknown.title, 'Nothing to suggest');
+        Assert.areEqual(1, mock.calls, 'Without an author there is no second lookup');
+
+        Test.setMock(HttpCalloutMock.class, new OpenLibraryMock(503, 'down'));
+        Assert.isTrue(BookClubReviewController.checkOpenLibrary('Possession', 'A. S. Byatt').unavailable);
+        Test.stopTest();
     }
 }

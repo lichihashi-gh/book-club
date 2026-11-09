@@ -164,14 +164,61 @@ private class BookClubReviewControllerTest {
     }
 
     @IsTest
+    static void aTitleCanOnlyBeOnTheBookshelfOnce() {
+        Assert.areEqual('rose code', BookClubTriggerHandler.titleKey('  The Rose-Code! '));
+        Assert.areEqual('middlemarch', [SELECT Title_Key__c FROM Title__c WHERE Name = 'Middlemarch'].Title_Key__c);
+
+        // Middlemarch by George Eliot and Persuasion by Jane Austen are already there.
+        for (Title__c duplicate : new List<Title__c>{
+            new Title__c(Name = 'middlemarch.', Author__c = 'george  eliot'),
+            new Title__c(Name = 'Middlemarch'),
+            new Title__c(Name = 'The Persuasion', Author__c = 'JANE AUSTEN')
+        }) {
+            Database.SaveResult result = Database.insert(duplicate, false);
+            Assert.isFalse(result.isSuccess(), 'Expected a duplicate: ' + duplicate);
+            Assert.isTrue(result.getErrors()[0].getMessage().contains(BookClubTriggerHandler.ALREADY_ON_BOOKSHELF),
+                result.getErrors()[0].getMessage());
+        }
+
+        insert new Title__c(Name = 'Middlemarch', Author__c = 'Someone Else', Title_Type__c = 'Movie');
+
+        List<Database.SaveResult> batch = Database.insert(new List<Title__c>{
+            new Title__c(Name = 'Possession', Author__c = 'A. S. Byatt'),
+            new Title__c(Name = 'POSSESSION', Author__c = 'A.S. Byatt')
+        }, false);
+        Assert.isTrue(batch[0].isSuccess());
+        Assert.isFalse(batch[1].isSuccess(), 'The same book twice in one save is refused');
+
+        Title__c possession = [SELECT Id FROM Title__c WHERE Name = 'Possession'];
+        Database.SaveResult rename = Database.update(new Title__c(Id = possession.Id, Name = 'Persuasion', Author__c = null), false);
+        Assert.isFalse(rename.isSuccess(), 'Renaming into an existing title is refused');
+        update new Title__c(Id = possession.Id, Notes__c = 'Edits that keep the name are fine.');
+    }
+
+    @IsTest
     static void ratingsMustBeOneToFiveStars() {
         System.runAs(user('rvmem1')) {
-            for (Integer rating : new List<Integer>{ null, 0, 6 }) {
+            for (Decimal rating : new List<Decimal>{ null, 0, 0.5, 5.5, 6, 3.7 }) {
                 try {
                     BookClubReviewController.saveReview(title('Middlemarch'), rating, null);
                     Assert.fail('Expected rating ' + rating + ' to be rejected');
                 } catch (AuraHandledException e) {
                     Assert.isTrue(e.getMessage().contains('1 to 5'), e.getMessage());
+                }
+            }
+        }
+    }
+
+    @IsTest
+    static void membersCanGiveHalfStars() {
+        Id middlemarch = title('Middlemarch');
+        System.runAs(user('rvmem1')) {
+            BookClubReviewController.saveReview(middlemarch, 3.5, null);
+
+            Assert.areEqual(3.5, BookClubReviewController.getReviews(middlemarch)[0].rating);
+            for (BookClubReviewController.TitleSummary summary : BookClubReviewController.getTitles()) {
+                if (summary.id == middlemarch) {
+                    Assert.areEqual(3.5, summary.myRating);
                 }
             }
         }

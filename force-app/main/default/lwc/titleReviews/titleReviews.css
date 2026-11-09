@@ -142,9 +142,20 @@
     color: var(--bc-muted);
 }
 
+/* Always five ★ glyphs, filled from the left up to --star-fill (set inline by stars() in the JS). */
 .stars {
-    color: var(--bc-gold);
+    --star-on: var(--bc-gold);
+    --star-off: #d9c3b0;
+    background: linear-gradient(90deg, var(--star-on) var(--star-fill, 0%), var(--star-off) var(--star-fill, 0%));
+    -webkit-background-clip: text;
+    background-clip: text;
+    color: transparent;
     letter-spacing: 0.05em;
+}
+
+.stars_on-badge {
+    --star-on: #fff;
+    --star-off: rgba(255, 255, 255, 0.35);
 }
 
 .mine-badge {
@@ -322,7 +333,9 @@
 }
 
 .star-choice {
+    position: relative;
     display: inline-block;
+    vertical-align: middle;
 }
 
 .star-input {
@@ -343,7 +356,7 @@
     transition: color 0.15s, transform 0.15s;
 }
 
-.star:hover {
+.star-choice:hover .star {
     transform: scale(1.12);
 }
 
@@ -351,9 +364,39 @@
     color: var(--bc-gold);
 }
 
-.star-input:focus-visible + .star {
+.star_half {
+    background: linear-gradient(90deg, var(--bc-gold) 50%, #d9c3b0 50%);
+    -webkit-background-clip: text;
+    background-clip: text;
+    color: transparent;
+}
+
+/* Clickable halves laid over each star. */
+.star-half {
+    position: absolute;
+    top: 0;
+    bottom: 0;
+    cursor: pointer;
+}
+
+.star-half_left {
+    left: 0;
+    width: 50%;
+}
+
+.star-half_right {
+    right: 0;
+    width: 50%;
+}
+
+.star-half_whole {
+    left: 0;
+    right: 0;
+}
+
+.star-input:focus-visible + .star-half {
     outline: 2px solid var(--bc-wine);
-    outline-offset: 2px;
+    outline-offset: 1px;
     border-radius: 0.25rem;
 }
 
@@ -470,7 +513,7 @@
         transition: none;
     }
 
-    .star:hover {
+    .star-choice:hover .star {
         transform: none;
     }
 }
@@ -479,3 +522,27 @@
     display: inline-block;
     margin-top: 0.75rem;
 }
+
+/* Shown when Open Library can't find the book being suggested or edited. */
+.ol-warning {
+    margin: 0.75rem 0;
+    padding: 0.75rem 1rem;
+    color: #3d2b33;
+    background: #fff6e5;
+    border-left: 4px solid #b26b00;
+    border-radius: 0.25rem;
+}
+
+.ol-warning-heading {
+    font-weight: 700;
+}
+
+.ol-warning-text {
+    margin-top: 0.35rem;
+    font-size: 0.875rem;
+}
+
+.ol-warning-actions {
+    margin-top: 0.6rem;
+}
+

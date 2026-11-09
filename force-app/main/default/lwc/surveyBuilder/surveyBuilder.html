@@ -1,17 +1,64 @@
 <template>
-    <lightning-card title="New Book Club Survey" icon-name="custom:custom55">
+    <lightning-card title={cardTitle} icon-name="custom:custom55">
         <div class="slds-p-horizontal_medium">
-            <p class="slds-m-bottom_small">
-                The survey is named after today's date when you save it.
-            </p>
+            <template lwc:if={isEdit}>
+                <template lwc:if={loaded}>
+                    <lightning-input
+                        class="slds-m-bottom_small"
+                        label="Survey name"
+                        max-length="80"
+                        value={name}
+                        onchange={handleNameChange}
+                    ></lightning-input>
+                </template>
+            </template>
+            <template lwc:else>
+                <p class="slds-m-bottom_small">
+                    The survey is named after today's date when you save it.
+                </p>
+            </template>
             <template lwc:if={error}>
                 <p class="slds-text-color_error" role="alert">{error}</p>
             </template>
             <template lwc:elseif={loaded}>
-                <template lwc:if={hasTitles}>
-                    <p class="slds-text-body_small slds-text-color_weak slds-m-bottom_x-small" aria-live="polite">
-                        {selectionSummary}
+                <template lwc:if={titlesLocked}>
+                    <!-- Published and Closed surveys keep their titles (the Only_Change_Draft_Surveys rule). -->
+                    <p class="slds-m-bottom_x-small">
+                        This survey is {status}, so its titles can't change. You can still rename it.
                     </p>
+                    <template lwc:if={canUnpublish}>
+                        <div class="slds-m-bottom_small">
+                            <lightning-button
+                                label="Move back to Draft"
+                                icon-name="utility:undo"
+                                title="Unpublish so you can change the titles. Any votes are cleared."
+                                onclick={handleUnpublish}
+                                disabled={saving}
+                            ></lightning-button>
+                            <span class="slds-text-body_small slds-text-color_weak slds-m-left_small">{unpublishHint}</span>
+                        </div>
+                    </template>
+                    <lightning-datatable
+                        key-field="id"
+                        data={lockedTitles}
+                        columns={columns}
+                        hide-checkbox-column
+                        resize-column-disabled
+                    ></lightning-datatable>
+                </template>
+                <template lwc:elseif={hasTitles}>
+                    <div class="slds-grid slds-grid_vertical-align-center slds-wrap slds-m-bottom_x-small">
+                        <lightning-button
+                            label={randomLabel}
+                            icon-name="utility:shuffle"
+                            title="Tick random Suggested titles. Click again to reshuffle; you can still change the picks."
+                            onclick={handlePickRandom}
+                            disabled={saving}
+                        ></lightning-button>
+                        <p class="slds-text-body_small slds-text-color_weak slds-m-left_small" aria-live="polite">
+                            {selectionSummary}
+                        </p>
+                    </div>
                     <lightning-datatable
                         key-field="id"
                         data={titles}
@@ -32,19 +79,30 @@
         </div>
         <div slot="footer" class="slds-text-align_right">
             <lightning-button label="Cancel" onclick={handleCancel} disabled={saving}></lightning-button>
-            <lightning-button
-                class="slds-m-left_x-small"
-                label="Save as Draft"
-                onclick={handleSaveDraft}
-                disabled={cannotSave}
-            ></lightning-button>
-            <lightning-button
-                class="slds-m-left_x-small"
-                variant="brand"
-                label="Create &amp; Publish"
-                onclick={handlePublish}
-                disabled={cannotSave}
-            ></lightning-button>
+            <template lwc:if={titlesLocked}>
+                <lightning-button
+                    class="slds-m-left_x-small"
+                    variant="brand"
+                    label="Save"
+                    onclick={handleSaveDraft}
+                    disabled={saving}
+                ></lightning-button>
+            </template>
+            <template lwc:else>
+                <lightning-button
+                    class="slds-m-left_x-small"
+                    label="Save as Draft"
+                    onclick={handleSaveDraft}
+                    disabled={cannotSave}
+                ></lightning-button>
+                <lightning-button
+                    class="slds-m-left_x-small"
+                    variant="brand"
+                    label={publishLabel}
+                    onclick={handlePublish}
+                    disabled={cannotSave}
+                ></lightning-button>
+            </template>
         </div>
     </lightning-card>
 </template>

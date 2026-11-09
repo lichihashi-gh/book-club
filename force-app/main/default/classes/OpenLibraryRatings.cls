@@ -31,12 +31,36 @@ public without sharing class OpenLibraryRatings {
         return new Rating(fresh);
     }
 
-    private static Title__c lookUp(Title__c title) {
+    // Before a book is saved: does Open Library know this title and author? When it
+    // doesn't, Open Library's best match for the title alone comes back as a suggestion,
+    // so a member can fix a typo. Open Library doesn't have every book, so callers only warn.
+    public static Match check(String name, String author) {
+        Match match = new Match();
+        if (String.isBlank(name)) {
+            return match;
+        }
+        try {
+            Map<String, Object> doc = firstDoc(name, author, MATCH_FIELDS);
+            match.found = doc != null;
+            if (doc == null && String.isNotBlank(author)) {
+                doc = firstDoc(name, null, MATCH_FIELDS);
+            }
+            match.fill(doc);
+        } catch (CalloutException e) {
+            match.unavailable = true;
+        }
+        return match;
+    }
+
+    static final String MATCH_FIELDS = 'key,title,author_name,cover_i';
+
+    // Open Library's top search result for a title (and author), or null when there's none.
+    private static Map<String, Object> firstDoc(String name, String author, String fields) {
         String url = ENDPOINT
-            + '?limit=1&fields=key,cover_i,ratings_average,ratings_count'
-            + '&title=' + EncodingUtil.urlEncode(title.Name, 'UTF-8');
-        if (String.isNotBlank(title.Author__c)) {
-            url += '&author=' + EncodingUtil.urlEncode(title.Author__c, 'UTF-8');
+            + '?limit=1&fields=' + fields
+            + '&title=' + EncodingUtil.urlEncode(name, 'UTF-8');
+        if (String.isNotBlank(author)) {
+            url += '&author=' + EncodingUtil.urlEncode(author, 'UTF-8');
         }
         HttpRequest request = new HttpRequest();
         request.setEndpoint(url);
@@ -47,6 +71,13 @@ public without sharing class OpenLibraryRatings {
         if (response.getStatusCode() != 200) {
             throw new CalloutException('Open Library returned ' + response.getStatusCode());
         }
+        Map<String, Object> body = (Map<String, Object>) JSON.deserializeUntyped(response.getBody());
+        List<Object> docs = (List<Object>) body.get('docs');
+        return docs == null || docs.isEmpty() ? null : (Map<String, Object>) docs[0];
+    }
+
+    private static Title__c lookUp(Title__c title) {
+        Map<String, Object> doc = firstDoc(title.Name, title.Author__c, 'key,cover_i,ratings_average,ratings_count');
 
         Title__c result = new Title__c(
             Id = title.Id,
@@ -56,10 +87,7 @@ public without sharing class OpenLibraryRatings {
             Open_Library_Rating__c = null,
             Open_Library_Rating_Count__c = null
         );
-        Map<String, Object> body = (Map<String, Object>) JSON.deserializeUntyped(response.getBody());
-        List<Object> docs = (List<Object>) body.get('docs');
-        if (docs != null && !docs.isEmpty()) {
-            Map<String, Object> doc = (Map<String, Object>) docs[0];
+        if (doc != null) {
             result.Open_Library_Key__c = (String) doc.get('key');
             result.Open_Library_Cover_Id__c = doc.get('cover_i') == null ? null : String.valueOf(doc.get('cover_i'));
             if (doc.get('ratings_average') != null) {
@@ -70,6 +98,28 @@ public without sharing class OpenLibraryRatings {
             }
         }
         return result;
+    }
+
+    // What check() found: found = the title and author matched; otherwise title and
+    // author (when set) are Open Library's best guess for the title alone.
+    public class Match {
+        @AuraEnabled public Boolean found = false;
+        @AuraEnabled public Boolean unavailable = false;
+        @AuraEnabled public String title;
+        @AuraEnabled public String author;
+        @AuraEnabled public String url;
+        @AuraEnabled public String coverUrl;
+
+        void fill(Map<String, Object> doc) {
+            if (doc == null) {
+                return;
+            }
+            title = (String) doc.get('title');
+            List<Object> authors = (List<Object>) doc.get('author_name');
+            author = authors == null || authors.isEmpty() ? null : (String) authors[0];
+            url = doc.get('key') == null ? null : 'https://openlibrary.org' + doc.get('key');
+            coverUrl = doc.get('cover_i') == null ? null : 'https://covers.openlibrary.org/b/id/' + doc.get('cover_i') + '-S.jpg';
+        }
     }
 
     public class Rating {

@@ -44,6 +44,25 @@
                                 value={suggestion.notes}
                                 onchange={handleSuggestionChange}
                             ></lightning-textarea>
+                            <template lwc:if={suggestCheck}>
+                                <div class="ol-warning" role="alert">
+                                    <p class="ol-warning-heading">We couldn't find {suggestCheck.entered} on Open Library.</p>
+                                    <template lwc:if={suggestCheck.title}>
+                                        <p class="ol-warning-text">
+                                            Did you mean <strong>{suggestCheck.title}</strong><template lwc:if={suggestCheck.author}> by {suggestCheck.author}</template>?
+                                        </p>
+                                    </template>
+                                    <p class="ol-warning-text">
+                                        Please check the spelling of the title and author. Open Library doesn't have every book, so if it's right, go ahead.
+                                    </p>
+                                    <div class="ol-warning-actions">
+                                        <template lwc:if={suggestCheck.title}>
+                                            <lightning-button label="Use this" onclick={handleUseSuggestion} disabled={suggestSaving}></lightning-button>
+                                        </template>
+                                        <lightning-button class="slds-m-left_x-small" label="Add it anyway" onclick={handleSuggestAnyway} disabled={suggestSaving}></lightning-button>
+                                    </div>
+                                </div>
+                            </template>
                             <div class="suggest-actions">
                                 <lightning-button label="Cancel" onclick={handleCancelSuggest} disabled={suggestSaving}></lightning-button>
                                 <lightning-button
@@ -86,7 +105,7 @@
                                         <span class="title-meta">
                                             <span class={title.statusClass}>{title.status}</span>
                                             <template lwc:if={title.hasReviews}>
-                                                <span class="stars" aria-hidden="true">{title.averageStars}</span>
+                                                <span class="stars" style={title.averageStars} aria-hidden="true">★★★★★</span>
                                                 <span class="title-count" aria-hidden="true">{title.averageRating} ({title.reviewCount})</span>
                                             </template>
                                             <template lwc:else>
@@ -94,7 +113,8 @@
                                             </template>
                                             <span class="slds-assistive-text">{title.averageLabel}</span>
                                             <template lwc:if={title.myStars}>
-                                                <span class="mine-badge">You: {title.myStars}</span>
+                                                <span class="mine-badge" aria-hidden="true">You: <span class="stars stars_on-badge" style={title.myStars}>★★★★★</span></span>
+                                                <span class="slds-assistive-text">{title.myRatingLabel}</span>
                                             </template>
                                             <template lwc:if={title.canEdit}>
                                                 <span class="mine-badge">Your suggestion</span>
@@ -147,6 +167,25 @@
                                         value={edit.notes}
                                         onchange={handleEditChange}
                                     ></lightning-textarea>
+                                        <template lwc:if={editCheck}>
+                                            <div class="ol-warning" role="alert">
+                                                <p class="ol-warning-heading">We couldn't find {editCheck.entered} on Open Library.</p>
+                                                <template lwc:if={editCheck.title}>
+                                                    <p class="ol-warning-text">
+                                                        Did you mean <strong>{editCheck.title}</strong><template lwc:if={editCheck.author}> by {editCheck.author}</template>?
+                                                    </p>
+                                                </template>
+                                                <p class="ol-warning-text">
+                                                    Please check the spelling of the title and author. Open Library doesn't have every book, so if it's right, go ahead.
+                                                </p>
+                                                <div class="ol-warning-actions">
+                                                    <template lwc:if={editCheck.title}>
+                                                        <lightning-button label="Use this" onclick={handleUseEditSuggestion} disabled={editSaving}></lightning-button>
+                                                    </template>
+                                                    <lightning-button class="slds-m-left_x-small" label="Save it anyway" onclick={handleSaveEditAnyway} disabled={editSaving}></lightning-button>
+                                                </div>
+                                            </div>
+                                        </template>
                                     <div class="suggest-actions">
                                         <lightning-button label="Cancel" onclick={handleCancelEdit} disabled={editSaving}></lightning-button>
                                         <lightning-button
@@ -194,7 +233,7 @@
                                                 <template lwc:if={openLibrary.hasRating}>
                                                     <p class="ol-score" aria-hidden="true">
                                                         <span class="ol-number">{openLibrary.average}</span>
-                                                        <span class="stars">{openLibrary.stars}</span>
+                                                        <span class="stars" style={openLibrary.stars}>★★★★★</span>
                                                     </p>
                                                     <p class="score-caption" aria-hidden="true">{openLibrary.countLabel}</p>
                                                     <p class="slds-assistive-text">{openLibrary.label}</p>
@@ -222,24 +261,27 @@
 
                             <section class="my-review" aria-labelledby="my-review-heading">
                                 <h4 class="my-review-heading" id="my-review-heading">{reviewHeading}</h4>
-                                <p class="my-review-intro">Pick your stars, then tell the club what you thought.</p>
+                                <p class="my-review-intro">Pick your stars (tap the left half of a star for a half star), then tell the club what you thought.</p>
                                 <fieldset class="star-picker">
                                     <legend class="star-legend">How many stars would you give it?</legend>
                                     <template for:each={starChoices} for:item="choice">
-                                        <span key={choice.value} class="star-choice">
-                                            <input
-                                                class="star-input"
-                                                type="radio"
-                                                name="rating"
-                                                id={choice.id}
-                                                value={choice.value}
-                                                checked={choice.checked}
-                                                onchange={handleRating}
-                                            />
-                                            <label class={choice.labelClass} for={choice.id}>
-                                                <span aria-hidden="true">★</span>
-                                                <span class="slds-assistive-text">{choice.label}</span>
-                                            </label>
+                                        <span key={choice.key} class="star-choice">
+                                            <span class={choice.starClass} aria-hidden="true">★</span>
+                                            <template for:each={choice.halves} for:item="half">
+                                                <input
+                                                    key={half.id}
+                                                    class="star-input"
+                                                    type="radio"
+                                                    name="rating"
+                                                    id={half.id}
+                                                    value={half.value}
+                                                    checked={half.checked}
+                                                    onchange={handleRating}
+                                                />
+                                                <label key={half.labelKey} class={half.labelClass} for={half.id}>
+                                                    <span class="slds-assistive-text">{half.label}</span>
+                                                </label>
+                                            </template>
                                         </span>
                                     </template>
                                     <span class="star-caption" aria-hidden="true">{ratingCaption}</span>
@@ -265,7 +307,7 @@
                                     <template lwc:if={scoreSummary}>
                                         <div class="score-main">
                                             <p class="score-number" aria-hidden="true">{scoreSummary.average}</p>
-                                            <p class="stars score-stars" aria-hidden="true">{scoreSummary.stars}</p>
+                                            <p class="stars score-stars" style={scoreSummary.stars} aria-hidden="true">★★★★★</p>
                                             <p class="score-caption" aria-hidden="true">{scoreSummary.countLabel}</p>
                                             <p class="slds-assistive-text">{scoreSummary.label}</p>
                                         </div>
@@ -286,7 +328,7 @@
                                         <div class="club-score">
                                             <p class="club-score-label" aria-hidden="true">Club score</p>
                                             <p class="club-score-number" aria-hidden="true">{clubScore.value}</p>
-                                            <p class="stars" aria-hidden="true">{clubScore.stars}</p>
+                                            <p class="stars" style={clubScore.stars} aria-hidden="true">★★★★★</p>
                                             <p class="slds-assistive-text">Club score: {clubScore.value} out of 5 stars</p>
                                         </div>
                                     </template>
@@ -299,7 +341,7 @@
                                 <template for:each={reviewRows} for:item="review">
                                     <article key={review.id} class={review.articleClass}>
                                         <p class="review-header">
-                                            <span class="stars" aria-hidden="true">{review.stars}</span>
+                                            <span class="stars" style={review.stars} aria-hidden="true">★★★★★</span>
                                             <span class="slds-assistive-text">{review.starsLabel}</span>
                                             <span class="review-name">{review.reviewerName}</span>
                                             <template lwc:if={review.isMine}>

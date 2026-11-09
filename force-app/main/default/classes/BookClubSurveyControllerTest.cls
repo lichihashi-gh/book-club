@@ -454,6 +454,87 @@ private class BookClubSurveyControllerTest {
     }
 
     @IsTest
+    static void adminEditsADraftAndOnlyRenamesAPublishedSurvey() {
+        Id alpha = title('Alpha').Id, bravo = title('Bravo').Id, charlie = title('Charlie').Id, delta = title('Delta').Id;
+        Id draftId;
+        System.runAs(user('bcadmin')) {
+            draftId = BookClubSurveyController.createSurvey(new List<Id>{ alpha, bravo, charlie }, false);
+        }
+
+        System.runAs(user('bcmem1')) {
+            try {
+                BookClubSurveyController.getSurveyForEdit(draftId);
+                Assert.fail('Members cannot edit surveys');
+            } catch (AuraHandledException e) {
+                Assert.isTrue(e.getMessage().contains('admin'), e.getMessage());
+            }
+        }
+
+        System.runAs(user('bcadmin')) {
+            BookClubSurveyController.SurveyEdit edit = BookClubSurveyController.getSurveyForEdit(draftId);
+            Assert.areEqual('Draft', edit.status);
+            Assert.areEqual(new List<Id>{ alpha, bravo, charlie }, edit.titleIds, 'Titles come back in display order');
+            Assert.areEqual('Alpha', edit.titles[0].name);
+
+            // Drop Bravo, add Delta, reorder, rename and publish in one save.
+            BookClubSurveyController.updateSurvey(draftId, ' Autumn Picks ', new List<Id>{ delta, charlie, alpha }, true);
+            Survey__c saved = [SELECT Name, Status__c, Published_On__c FROM Survey__c WHERE Id = :draftId];
+            Assert.areEqual('Autumn Picks', saved.Name);
+            Assert.areEqual('Published', saved.Status__c);
+            Assert.areEqual(Date.today(), saved.Published_On__c);
+            List<Survey_Option__c> options = [
+                SELECT Title__c, Display_Order__c FROM Survey_Option__c WHERE Survey__c = :draftId ORDER BY Display_Order__c
+            ];
+            Assert.areEqual(3, options.size());
+            Assert.areEqual(delta, options[0].Title__c);
+            Assert.areEqual(alpha, options[2].Title__c);
+
+            try {
+                BookClubSurveyController.updateSurvey(draftId, null, new List<Id>{ delta, charlie, bravo }, false);
+                Assert.fail('Published titles are locked');
+            } catch (AuraHandledException e) {
+                Assert.isTrue(e.getMessage().contains('published'), e.getMessage());
+            }
+
+            BookClubSurveyController.updateSurvey(draftId, 'Autumn Picks 2026', new List<Id>{ alpha, charlie, delta }, false);
+            Assert.areEqual('Autumn Picks 2026', [SELECT Name FROM Survey__c WHERE Id = :draftId].Name,
+                'A published survey can still be renamed');
+        }
+    }
+
+    @IsTest
+    static void adminMovesAPublishedSurveyBackToDraft() {
+        Survey__c survey = publishSurvey(new List<String>{ 'Alpha', 'Bravo', 'Charlie' });
+        System.runAs(user('bcmem1')) {
+            BookClubSurveyController.submitRanking(survey.Id, optionIds(survey.Id, new List<String>{ 'Bravo', 'Alpha', 'Charlie' }));
+            try {
+                BookClubSurveyController.unpublishSurvey(survey.Id);
+                Assert.fail('Members cannot unpublish');
+            } catch (AuraHandledException e) {
+                Assert.isTrue(e.getMessage().contains('admin'), e.getMessage());
+            }
+        }
+
+        System.runAs(user('bcadmin')) {
+            Assert.areEqual(1, BookClubSurveyController.getSurveyForEdit(survey.Id).responseCount);
+            BookClubSurveyController.unpublishSurvey(survey.Id);
+            Assert.areEqual('Draft', [SELECT Status__c FROM Survey__c WHERE Id = :survey.Id].Status__c);
+            Assert.areEqual(0, [SELECT COUNT() FROM Survey_Response__c WHERE Survey__c = :survey.Id], 'Votes on the old titles are cleared');
+            Assert.areEqual(0, [SELECT COUNT() FROM Survey_Ranking__c WHERE Survey_Response__r.Survey__c = :survey.Id]);
+
+            // Back in Draft, the titles can change again.
+            BookClubSurveyController.updateSurvey(survey.Id, null, new List<Id>{ title('Delta').Id, title('Alpha').Id }, true);
+            Assert.areEqual(2, [SELECT COUNT() FROM Survey_Option__c WHERE Survey__c = :survey.Id]);
+
+            try {
+                BookClubSurveyController.unpublishSurvey(publishSurvey(new List<String>{ 'Echo', 'Foxtrot' }).Id);
+            } catch (AuraHandledException e) {
+                Assert.fail('A Published survey with no votes can go back to Draft: ' + e.getMessage());
+            }
+        }
+    }
+
+    @IsTest
     static void closingInTheStandardUiSelectsTheLeader() {
         Survey__c survey = publishSurvey(new List<String>{ 'Alpha', 'Bravo', 'Charlie' });
         Survey__c closing = new Survey__c(Id = survey.Id, Status__c = 'Closed');

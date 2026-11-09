@@ -2,7 +2,7 @@
 <ValidationRule xmlns="http://soap.sforce.com/2006/04/metadata">
     <fullName>Rating_Range</fullName>
     <active>true</active>
-    <errorConditionFormula>ISBLANK(Rating__c) || Rating__c &lt; 1 || Rating__c &gt; 5</errorConditionFormula>
+    <errorConditionFormula>ISBLANK(Rating__c) || Rating__c &lt; 1 || Rating__c &gt; 5 || MOD(Rating__c * 2, 1) &lt;&gt; 0</errorConditionFormula>
     <errorDisplayField>Rating__c</errorDisplayField>
-    <errorMessage>Pick 1 to 5 stars.</errorMessage>
+    <errorMessage>Pick 1 to 5 stars, in whole or half stars.</errorMessage>
 </ValidationRule>
