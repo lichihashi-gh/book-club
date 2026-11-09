@@ -1,18 +1,18 @@
 // Backs the titleReviews LWC ("The Bookshelf"): members browse every title,
 // suggest new ones (and fix their own while still Suggested), rate any title
-// 1–5 stars with a comment (once per title), and read everyone's reviews.
+// 1–5 stars (in half stars) with a comment (once per title), and read everyone's reviews.
 public with sharing class BookClubReviewController {
     static final String TITLE_SUGGESTED = 'Suggested';
     @TestVisible static final String NOT_YOUR_SUGGESTION = 'Only the member who suggested this title can edit it.';
     @TestVisible static final String NO_LONGER_SUGGESTED = 'This title has already been chosen, so it can\'t be edited anymore.';
 
     // Adds a Suggested title, credited to the running user, so the admin can
-    // put it on a survey. Exact duplicates (same title and author) are refused.
+    // put it on a survey. Duplicates are refused by TitleTrigger.
     @AuraEnabled
     public static Id suggestTitle(String name, String author, String titleType, String notes) {
         String trimmedName = name?.trim();
         String trimmedAuthor = String.isBlank(author) ? null : author.trim();
-        checkNameAndDuplicates(trimmedName, trimmedAuthor, null);
+        requireName(trimmedName);
 
         Title__c title = new Title__c(
             Name = trimmedName,
@@ -46,7 +46,7 @@ public with sharing class BookClubReviewController {
         }
         String trimmedName = name?.trim();
         String trimmedAuthor = String.isBlank(author) ? null : author.trim();
-        checkNameAndDuplicates(trimmedName, trimmedAuthor, titleId);
+        requireName(trimmedName);
 
         Title__c title = new Title__c(
             Id = titleId,
@@ -75,21 +75,19 @@ public with sharing class BookClubReviewController {
         }
     }
 
-    // Exact duplicates (same title and author) are refused; excludeId is the title being edited.
-    private static void checkNameAndDuplicates(String trimmedName, String trimmedAuthor, Id excludeId) {
+    // Duplicates (the same title and author, however they're typed) are refused by
+    // TitleTrigger, which covers every way a title is entered.
+    private static void requireName(String trimmedName) {
         if (String.isBlank(trimmedName)) {
             throw error('Enter the title.');
         }
-        List<Title__c> existing = [
-            SELECT Name, Status__c
-            FROM Title__c
-            WHERE Name = :trimmedName AND Author__c = :trimmedAuthor AND Id != :excludeId
-            WITH SYSTEM_MODE
-            LIMIT 1
-        ];
-        if (!existing.isEmpty()) {
-            throw error('"' + existing[0].Name + '" is already on the bookshelf (' + existing[0].Status__c + ').');
-        }
+    }
+
+    // Called before a book is suggested or renamed, so the member can fix a typo.
+    // Only a warning: Open Library doesn't have every book, and the member can add it anyway.
+    @AuraEnabled
+    public static OpenLibraryRatings.Match checkOpenLibrary(String name, String author) {
+        return OpenLibraryRatings.check(name?.trim(), String.isBlank(author) ? null : author.trim());
     }
 
     // Not cacheable: averages change as members review.
@@ -126,7 +124,7 @@ public with sharing class BookClubReviewController {
         ]) {
             TitleSummary summary = byId.get(mine.Title__c);
             if (summary != null) {
-                summary.myRating = mine.Rating__c.intValue();
+                summary.myRating = mine.Rating__c;
             }
         }
         return byId.values();
@@ -166,7 +164,7 @@ public with sharing class BookClubReviewController {
 
     // Creates the running user's review of a title, or updates it if they already have one.
     @AuraEnabled
-    public static void saveReview(Id titleId, Integer rating, String comment) {
+    public static void saveReview(Id titleId, Decimal rating, String comment) {
         List<Title_Review__c> existing = [
             SELECT Id
             FROM Title_Review__c
@@ -202,7 +200,7 @@ public with sharing class BookClubReviewController {
         @AuraEnabled public String notes;
         @AuraEnabled public Decimal averageRating;
         @AuraEnabled public Integer reviewCount = 0;
-        @AuraEnabled public Integer myRating;
+        @AuraEnabled public Decimal myRating;
         // The running user entered it and it's still Suggested (see updateSuggestion).
         @AuraEnabled public Boolean canEdit;
 
@@ -220,7 +218,7 @@ public with sharing class BookClubReviewController {
 
     public class ReviewView {
         @AuraEnabled public Id id;
-        @AuraEnabled public Integer rating;
+        @AuraEnabled public Decimal rating;
         @AuraEnabled public String comment;
         @AuraEnabled public String reviewerName;
         @AuraEnabled public Datetime reviewedOn;
@@ -228,7 +226,7 @@ public with sharing class BookClubReviewController {
 
         public ReviewView(Title_Review__c review) {
             id = review.Id;
-            rating = review.Rating__c.intValue();
+            rating = review.Rating__c;
             comment = review.Comment__c;
             reviewerName = review.Reviewer_Name__c;
             reviewedOn = review.LastModifiedDate;

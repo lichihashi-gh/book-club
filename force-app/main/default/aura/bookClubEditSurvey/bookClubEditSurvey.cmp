@@ -1,0 +1,4 @@
+<!-- Overrides the Edit button on Book Club Surveys. LWCs can't override standard actions directly. -->
+<aura:component implements="lightning:actionOverride,force:hasRecordId">
+    <c:surveyBuilder recordId="{!v.recordId}" />
+</aura:component>

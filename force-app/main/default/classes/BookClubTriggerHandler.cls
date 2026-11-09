@@ -12,9 +12,86 @@ public without sharing class BookClubTriggerHandler {
     static final String NOT_AN_OPTION = 'The Selected Title must be one of the survey\'s titles.';
     @TestVisible
     static final String ALREADY_REVIEWED = 'You\'ve already reviewed this title. Edit your review instead.';
+    @TestVisible
+    static final String ALREADY_ON_BOOKSHELF = 'is already on the bookshelf';
     static final String STATUS_PUBLISHED = 'Published';
     static final String STATUS_CLOSED = 'Closed';
     static final String TITLE_SELECTED = 'Selected';
+
+    // Titles: keeps Title_Key__c up to date and refuses a title that's already on the
+    // bookshelf, however it's entered (The Bookshelf, the standard UI, the API). Two
+    // titles are the same when their keys match (see titleKey) and so do their authors
+    // (letters and digits only), or one of them has no author. The same name by a
+    // different author is a different title.
+    public static void preventDuplicateBookshelfTitles(List<Title__c> titles, Map<Id, Title__c> oldById) {
+        Map<String, List<Title__c>> checkingByKey = new Map<String, List<Title__c>>();
+        Set<Id> checkingIds = new Set<Id>();
+        for (Title__c title : titles) {
+            title.Title_Key__c = titleKey(title.Name);
+            Title__c old = oldById?.get(title.Id);
+            // Only new names and authors are checked, so editing an old record never trips over history.
+            Boolean renamed = old == null || !title.Name.equals(old.Name) || title.Author__c != old.Author__c;
+            if (renamed && title.Title_Key__c != null) {
+                if (!checkingByKey.containsKey(title.Title_Key__c)) {
+                    checkingByKey.put(title.Title_Key__c, new List<Title__c>());
+                }
+                checkingByKey.get(title.Title_Key__c).add(title);
+                if (title.Id != null) {
+                    checkingIds.add(title.Id);
+                }
+            }
+        }
+        if (checkingByKey.isEmpty()) {
+            return;
+        }
+
+        Set<String> keys = checkingByKey.keySet();
+        Map<String, List<Title__c>> existingByKey = new Map<String, List<Title__c>>();
+        for (Title__c existing : [
+            SELECT Id, Name, Author__c, Status__c, Title_Key__c
+            FROM Title__c
+            WHERE Title_Key__c IN :keys AND Id NOT IN :checkingIds
+            WITH SYSTEM_MODE
+        ]) {
+            if (!existingByKey.containsKey(existing.Title_Key__c)) {
+                existingByKey.put(existing.Title_Key__c, new List<Title__c>());
+            }
+            existingByKey.get(existing.Title_Key__c).add(existing);
+        }
+
+        for (String key : keys) {
+            // Earlier titles in the same save count too, so a batch can't add the same book twice.
+            List<Title__c> seen = existingByKey.containsKey(key) ? existingByKey.get(key) : new List<Title__c>();
+            for (Title__c title : checkingByKey.get(key)) {
+                for (Title__c other : seen) {
+                    if (authorsMatch(title.Author__c, other.Author__c)) {
+                        String status = String.isBlank(other.Status__c) ? '' : ' (' + other.Status__c + ')';
+                        title.Name.addError('"' + other.Name + '" ' + ALREADY_ON_BOOKSHELF + status + '.');
+                        break;
+                    }
+                }
+                seen.add(title);
+            }
+        }
+    }
+
+    // "The Rose Code", "rose code" and "The  Rose-Code!" all become "rose code".
+    @TestVisible
+    static String titleKey(String name) {
+        if (String.isBlank(name)) {
+            return null;
+        }
+        String key = name.toLowerCase().replaceAll('[^\\p{L}\\p{N}]+', ' ').normalizeSpace();
+        key = key.replaceFirst('^(the|a|an) ', '');
+        return String.isBlank(key) ? null : key.left(255);
+    }
+
+    // "A. S. Byatt" and "a.s. byatt" match; a missing author matches anyone.
+    static Boolean authorsMatch(String first, String second) {
+        String firstKey = first?.toLowerCase().replaceAll('[^\\p{L}\\p{N}]', '');
+        String secondKey = second?.toLowerCase().replaceAll('[^\\p{L}\\p{N}]', '');
+        return String.isBlank(firstKey) || String.isBlank(secondKey) || firstKey == secondKey;
+    }
 
     // New surveys are named after the day they're created, e.g. "Next Read - 01/01/2026"
     // (admins can rename later). Published On and Closed On are stamped whenever
